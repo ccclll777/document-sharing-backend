@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ccclll777.alldocsbackend.dao.RoleDao">
+  <resultMap id="BaseResultMap" type="org.ccclll777.alldocsbackend.entity.Role">
+      <result column="id" property="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="role_name" property="roleName" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="description" property="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <result column="data_scope" property="dataScope" javaType="java.lang.Character" jdbcType="CHAR" />
+  </resultMap>
+  <select id="selectRoleById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from sys_role where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectRoleByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from sys_role where role_name = #{roleName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectRoleByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from sys_role where id in  (select role_id from sys_role_user where user_id = #{userId,jdbcType=INTEGER})
+    </select>
+</mapper>
