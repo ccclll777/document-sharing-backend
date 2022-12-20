@@ -16,7 +16,8 @@ public enum ErrorCode {
     PARAMS_FORMAT_ERROR(1201,HttpStatus.BAD_REQUEST,"参数格式错误"),
     PARAMS_TYPE_ERROR(1202,HttpStatus.INTERNAL_SERVER_ERROR,"类型转换错误"),
     OPERATE_FAILED(1202,HttpStatus.INTERNAL_SERVER_ERROR,"操作失败"),
-    UPLOAD_FAILED(1202,HttpStatus.INTERNAL_SERVER_ERROR,"上传的文件超过大小限制");
+    UPLOAD_FAILED(1202,HttpStatus.INTERNAL_SERVER_ERROR,"上传的文件超过大小限制"),
+    SQL_ERROR(1203,HttpStatus.INTERNAL_SERVER_ERROR,"数据库错误");
 
     private final int code;
 

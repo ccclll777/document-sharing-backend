@@ -16,7 +16,7 @@
     select * from sys_user where id = #{id,jdbcType=INTEGER}
   </select>
     <select id="selectUserByUserName" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select * from sys_user where user_name = #{userName,jdbcType=VARCHAR}
+        select * from sys_user2 where user_name = #{userName,jdbcType=VARCHAR}
     </select>
     <insert id="insertUser" parameterType="org.ccclll777.alldocsbackend.entity.User">
         insert into sys_user (user_name, password,nick_name,create_time,update_time)
