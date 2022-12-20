@@ -1,5 +1,7 @@
 package org.ccclll777.alldocsbackend.exception;
 
+import org.ccclll777.alldocsbackend.enums.ErrorCode;
+
 import java.util.Map;
 
 /**

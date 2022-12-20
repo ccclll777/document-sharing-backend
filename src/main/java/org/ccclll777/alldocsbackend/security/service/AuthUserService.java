@@ -44,7 +44,6 @@ public class AuthUserService {
 
     public String createToken(LoginRequest loginRequest) {
         User user = userService.find(loginRequest.getUsername());
-        System.out.println(loginRequest.getUsername());
         if (!userService.check(loginRequest.getPassword(), user.getPassword())) {
             log.error("The user name or password is not correct.");
             throw new BadCredentialsException("The user name or password is not correct.");

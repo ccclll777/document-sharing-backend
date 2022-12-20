@@ -1,5 +1,6 @@
 package org.ccclll777.alldocsbackend.dao;
 
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 import org.ccclll777.alldocsbackend.entity.User;
 
@@ -23,4 +24,8 @@ public interface UserDao {
 
     int insertUser(User user);
     List<User> selectUserList(Integer limit, Integer offset);
+
+    int updateUser(User user);
+
+    int deleteUser(Integer userId);
 }

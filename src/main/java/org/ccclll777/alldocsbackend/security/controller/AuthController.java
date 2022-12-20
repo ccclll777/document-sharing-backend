@@ -4,15 +4,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ccclll777.alldocsbackend.security.common.constants.SecurityConstants;
+import org.ccclll777.alldocsbackend.enums.ErrorCode;
 import org.ccclll777.alldocsbackend.security.dto.LoginRequest;
 import org.ccclll777.alldocsbackend.security.service.AuthUserService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
-import org.ccclll777.alldocsbackend.utils.MessageConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,7 +37,7 @@ public class AuthController {
             result.put("userId", loginRequest.getUsername());
             return BaseApiResult.success(result);
         }catch (BadCredentialsException e){
-            return BaseApiResult.error(MessageConstant.PROCESS_ERROR_CODE,e.getMessage());
+            return BaseApiResult.error(ErrorCode.OPERATE_FAILED.getCode(),e.getMessage());
         }
     }
 

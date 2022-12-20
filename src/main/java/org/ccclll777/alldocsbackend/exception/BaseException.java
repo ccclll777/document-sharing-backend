@@ -1,17 +1,14 @@
 package org.ccclll777.alldocsbackend.exception;
 
+import org.ccclll777.alldocsbackend.enums.ErrorCode;
 import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author shuang.kou
- */
 abstract class BaseException extends RuntimeException {
     private final ErrorCode errorCode;
     private final transient HashMap<String, Object> data = new HashMap<>();
-
     BaseException(ErrorCode errorCode, Map<String, Object> data) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
@@ -19,7 +16,6 @@ abstract class BaseException extends RuntimeException {
             this.data.putAll(data);
         }
     }
-
     BaseException(ErrorCode errorCode, Map<String, Object> data, Throwable cause) {
         super(errorCode.getMessage(), cause);
         this.errorCode = errorCode;
@@ -27,7 +23,6 @@ abstract class BaseException extends RuntimeException {
             this.data.putAll(data);
         }
     }
-
     public ErrorCode getErrorCode() {
         return errorCode;
     }

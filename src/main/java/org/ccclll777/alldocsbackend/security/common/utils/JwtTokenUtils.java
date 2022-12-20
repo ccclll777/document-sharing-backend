@@ -29,7 +29,6 @@ public class JwtTokenUtils {
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(API_KEY_SECRET_BYTES);
 
     public static String createToken(String username, String id, List<String> roles, boolean isRememberMe) {
-//        System.out.println("SecurityConstants.JWT_SECRET_KEY"+SecurityConstants.JWT_SECRET_KEY);
         long expiration = isRememberMe ? SecurityConstants.EXPIRATION_REMEMBER : SecurityConstants.EXPIRATION;
         final Date createdDate = new Date();
         //rememberMe设置token的保存时间
