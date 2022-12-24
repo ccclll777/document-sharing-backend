@@ -10,10 +10,7 @@ import org.ccclll777.alldocsbackend.security.service.AuthUserService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,10 +28,11 @@ public class AuthController {
     @ApiOperation("登录")
     public BaseApiResult login(@RequestBody LoginRequest loginRequest) {
         try {
-            String token = authUserService.createToken(loginRequest);
+            String[] list = authUserService.createToken(loginRequest);
             Map<String, String> result = new HashMap<>(8);
-            result.put("token", token);
-            result.put("userId", loginRequest.getUsername());
+            result.put("token", list[1]);
+            result.put("userId", list[0]);
+            result.put("userName", loginRequest.getUserName());
             return BaseApiResult.success(result);
         }catch (BadCredentialsException e){
             return BaseApiResult.error(ErrorCode.OPERATE_FAILED.getCode(),e.getMessage());

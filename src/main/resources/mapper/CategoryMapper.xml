@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ccclll777.alldocsbackend.dao.CategoryDao">
+  <resultMap id="BaseResultMap" type="org.ccclll777.alldocsbackend.entity.Category">
+      <result column="id" property="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="description" property="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="user_id" property="userId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+    <insert id="insertCategory" parameterType="org.ccclll777.alldocsbackend.entity.Category">
+        insert into category (name,description,create_time,update_time,user_id)
+        values (#{name,jdbcType=VARCHAR},
+                #{description,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP},
+                #{updateTime,jdbcType=TIMESTAMP},
+                #{userId,jdbcType=INTEGER}
+               )
+    </insert>
+
+    <update id="updateCategory" parameterType="org.ccclll777.alldocsbackend.entity.Category" >
+        update category set name = #{name,jdbcType=VARCHAR},
+                            description = #{description,jdbcType=VARCHAR},
+                            create_time = #{createTime,jdbcType=TIMESTAMP},
+                            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteCategory" parameterType="java.lang.Integer" >
+        delete from category where id = #{categoryId,jdbcType=INTEGER}
+    </delete>
+
+    <select id="selectCategoryList" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from category order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+    </select>
+    <select id="categoryCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(*) from category
+    </select>
+    <select id="haveCategory" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from category where name = #{categoryName,jdbcType=VARCHAR}
+    </select>
+</mapper>

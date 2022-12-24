@@ -1,12 +1,9 @@
 package org.ccclll777.alldocsbackend.security.service;
 
 
-import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ccclll777.alldocsbackend.dao.RoleDao;
-import org.ccclll777.alldocsbackend.dao.RoleUserDao;
-import org.ccclll777.alldocsbackend.dao.UserDao;
 import org.ccclll777.alldocsbackend.entity.Role;
 import org.ccclll777.alldocsbackend.entity.User;
 import org.ccclll777.alldocsbackend.security.common.utils.CurrentUserUtils;
@@ -14,19 +11,13 @@ import org.ccclll777.alldocsbackend.security.common.utils.JwtTokenUtils;
 import org.ccclll777.alldocsbackend.security.dto.LoginRequest;
 import org.ccclll777.alldocsbackend.security.entity.JwtUser;
 import org.ccclll777.alldocsbackend.service.UserService;
-import org.ccclll777.alldocsbackend.utils.UserRegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -42,8 +33,8 @@ public class AuthUserService {
     private final CurrentUserUtils currentUserUtils;
     private final RoleDao roleDao;
 
-    public String createToken(LoginRequest loginRequest) {
-        User user = userService.find(loginRequest.getUsername());
+    public String[] createToken(LoginRequest loginRequest) {
+        User user = userService.find(loginRequest.getUserName());
         if (!userService.check(loginRequest.getPassword(), user.getPassword())) {
             log.error("The user name or password is not correct.");
             throw new BadCredentialsException("The user name or password is not correct.");
@@ -61,7 +52,7 @@ public class AuthUserService {
                 .collect(Collectors.toList());
         String token = JwtTokenUtils.createToken(user.getUserName(), user.getId().toString(), authorities, loginRequest.getRememberMe());
         stringRedisTemplate.opsForValue().set(user.getId().toString(), token);
-        return token;
+        return new String[]{user.getId().toString(), token};
     }
 
     public void removeToken() {

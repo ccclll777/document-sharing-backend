@@ -36,12 +36,6 @@ public class UserTest {
         System.out.println(user.getUpdateTime());
        userDao.insertUser(user);
     }
-    @Test
-    public void createToken(){
-        LoginRequest loginRequest = LoginRequest.builder().username("ccclll777").password("123456").rememberMe(false).build();
 
-         String token =  authUserService.createToken(loginRequest);
-        System.out.println(token);
-    }
 
 }

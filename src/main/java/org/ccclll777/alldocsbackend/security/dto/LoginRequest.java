@@ -12,7 +12,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class LoginRequest {
-    private String username;
+    private String userName;
     private String password;
     private Boolean rememberMe;
 }

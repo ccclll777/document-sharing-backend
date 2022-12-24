@@ -15,12 +15,12 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
+import java.io.IOException;
 
 /**
  * 全局统一异常处理
  * 捕获异常，产生异常时，统一返回错误信息
  *
- * @author jiarui.luo
  */
 @Slf4j
 @ResponseBody
@@ -178,6 +178,17 @@ public class CommonExceptionHandler {
     public BaseApiResult handleUncategorizedSQLException(UncategorizedSQLException e) {
         log.error("occur UncategorizedSQLException:{}" , e.getMessage());
         return BaseApiResult.error(ErrorCode.SQL_ERROR.getCode(), ErrorCode.SQL_ERROR.getMessage());
+    }
+
+    /**
+     * 上传文件失败的IO错误
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value = IOException.class)
+    public BaseApiResult handleIOException(IOException e) {
+        log.error("occur IOException:{}" , e.getMessage());
+        return BaseApiResult.error(ErrorCode.IO_EXCEPTION.getCode(), e.getMessage());
     }
 
 
