@@ -6,9 +6,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ccclll777.alldocsbackend.entity.File;
 import org.ccclll777.alldocsbackend.entity.FileDocument;
+import org.ccclll777.alldocsbackend.entity.Tag;
 import org.ccclll777.alldocsbackend.entity.User;
+import org.ccclll777.alldocsbackend.entity.dto.FileDTO;
+import org.ccclll777.alldocsbackend.entity.dto.UploadDTO;
+import org.ccclll777.alldocsbackend.entity.vo.FilesVO;
 import org.ccclll777.alldocsbackend.enums.ErrorCode;
+import org.ccclll777.alldocsbackend.security.common.constants.SecurityConstants;
+import org.ccclll777.alldocsbackend.security.common.utils.JwtTokenUtils;
 import org.ccclll777.alldocsbackend.service.FileService;
 import org.ccclll777.alldocsbackend.service.TaskExecuteService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
@@ -36,13 +43,11 @@ public class FileController {
      * 表单上传文件
      * 当数据库中存在该md5值时，可以实现秒传功能
      *
-     * @param file 文件
-     * @return
      */
     @ApiOperation("上传文件")
     @PostMapping("/upload")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
-    public BaseApiResult formUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    public BaseApiResult formUpload(@RequestParam("file") MultipartFile file, @RequestHeader(SecurityConstants.TOKEN_HEADER) String token) throws IOException {
         List<String> availableSuffixList = Lists.newArrayList("pdf", "png", "docx", "pptx", "xlsx");
             if (file != null && !file.isEmpty()) {
                 String originFileName = file.getOriginalFilename();
@@ -55,40 +60,93 @@ public class FileController {
                     return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(),"格式不支持");
                 }
                 String fileMd5 = SecureUtil.md5(file.getInputStream());
-                FileDocument fileDocument = fileService.saveFile(fileMd5, file);
-                switch (suffix) {
-                    case "pdf":
-                    case "docx":
-                    case "pptx":
-                    case "xlsx":
-                        taskExecuteService.execute(fileDocument);
-                        break;
-                    default:
-                        break;
+                //需要根据token找到userId
+                String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
+                String userId =   JwtTokenUtils.getId(tokenValue);
+                FileDocument fileDocument = fileService.saveFile(fileMd5, file,Integer.parseInt(userId));
+                if(fileDocument != null) {
+                    switch (suffix) {
+                        case "pdf":
+                        case "docx":
+                        case "pptx":
+                        case "xlsx":
+                            //开启线程 执行索引建立任务
+                            taskExecuteService.execute(fileDocument);
+                            break;
+                        default:
+                            break;
+                    }
+                    return BaseApiResult.success("上传成功");
+                } else {
+                    return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(), "发生错误，上传失败");
                 }
-                return BaseApiResult.success("上传成功");
+
             } else {
                 return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(), "请传入文件");
             }
 
     }
-//    @ApiOperation(value = "查询文档的分页列表页")
-//    @PostMapping(value = "/list")
-//    public BaseApiResult list(@RequestBody FileDTO documentDTO) throws IOException {
-//        if (StringUtils.hasText(documentDTO.getFilterWord()) &&
-//                documentDTO.getType() == FilterTypeEnum.FILTER) {
-//            String filterWord = documentDTO.getFilterWord();
-//            //非法敏感词汇判断
-//            SensitiveFilter filter = SensitiveFilter.getInstance();
-//            int n = filter.checkSensitiveWord(filterWord, 0, 1);
-//            //存在非法字符
-//            if (n > 0) {
-//                log.info("这个人输入了非法字符--> {},不知道他到底要查什么~", filterWord);
-//            }
-//            redisService.incrementScoreByUserId(filterWord, RedisServiceImpl.SEARCH_KEY);
-//        }
-//        return iFileService.list(documentDTO);
-//    }
+    @ApiOperation(value = "查询文档的分页列表页")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
+    @GetMapping(value = "/all")
+    public BaseApiResult list(@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+                              @RequestParam(value = "pageSize", defaultValue = "10") int pageSize)  {
+        List<FilesVO> files = fileService.selectFiles(pageNum-1, pageSize);
+        return BaseApiResult.success(files);
+    }
+    @ApiOperation(value = "查询文档的分页列表页")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(value = "/userFileList")
+    public BaseApiResult userFileList(@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+                              @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+                                      @RequestHeader(SecurityConstants.TOKEN_HEADER) String token      )  {
+        //需要根据token找到userId
+        String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
+        String userId =   JwtTokenUtils.getId(tokenValue);
+        List<FilesVO> files = fileService.selectFilesByUserId(pageNum-1, pageSize,Integer.parseInt(userId));
+        return BaseApiResult.success(files);
+    }
 
+    @ApiOperation(value = "查询文档数量")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
+    @GetMapping(value = "/count")
+    public BaseApiResult count() {
+        int count = fileService.fileCount();
+        return BaseApiResult.success(count);
+    }
+
+    @ApiOperation(value = "查询用户的文档数量")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
+    @GetMapping(value = "/userFileCount")
+    public BaseApiResult userFileCount(@RequestHeader(SecurityConstants.TOKEN_HEADER) String token) {
+        //需要根据token找到userId
+        String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
+        String userId =   JwtTokenUtils.getId(tokenValue);
+        int count = fileService.fileCountByUserId(Integer.parseInt(userId));
+        return BaseApiResult.success(count);
+    }
+
+    @ApiOperation(value = "根据id彻底删除文档")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
+    @DeleteMapping(value = "/deleteCompletely/{fileId}")
+    public BaseApiResult deleteFileCompletely(@PathVariable Integer fileId) {
+        int code = fileService.deleteFileCompletely(fileId);
+        if(code > 0){
+            return  BaseApiResult.success("彻底删除文档成功");
+        }
+        return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除文档失败");
+    }
+
+    @ApiOperation(value = "用户将文档状态改为已删除")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @DeleteMapping(value = "/delete/{fileId}")
+    public BaseApiResult deleteFile(@PathVariable Integer fileId) {
+        int code = fileService.deleteFile(fileId);
+        System.out.println("deleteFile");
+        if(code > 0){
+            return  BaseApiResult.success("删除文档成功");
+        }
+        return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除文档失败");
+    }
 
 }

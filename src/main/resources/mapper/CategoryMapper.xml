@@ -35,6 +35,10 @@
     <select id="selectCategoryList" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select * from category order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
     </select>
+
+    <select id="selectCategoryById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from category where id =  #{categoryId,jdbcType=INTEGER}
+    </select>
     <select id="categoryCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
         select count(*) from category
     </select>

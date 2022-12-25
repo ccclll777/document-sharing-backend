@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ccclll777.alldocsbackend.dao.FilesDao">
+  <resultMap id="BaseResultMap" type="org.ccclll777.alldocsbackend.entity.File">
+      <result column="id" property="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="gridfs_id" property="gridfsId" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <result column="content_type" property="contentType" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="suffix" property="suffix" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="reviewing" property="reviewing" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="file_state" property="fileState" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="category_id" property="categoryId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="error_message" property="errorMessage" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="user_id" property="userId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <result column="size" property="size" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <result column="thumb_id" property="thumbId" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="mongo_file_id" property="mongoFileId" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="md5" property="md5" javaType="java.lang.String" jdbcType="VARCHAR" />
+  </resultMap>
+    <insert id="insertFile" useGeneratedKeys="true" keyProperty="id" parameterType="org.ccclll777.alldocsbackend.entity.File">
+        insert into files (gridfs_id,name,create_time,content_type,suffix,reviewing,file_state,category_id,error_message,user_id,size,thumb_id,mongo_file_id,md5)
+        values (#{gridfsId ,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP},
+                #{contentType,jdbcType=VARCHAR},
+                #{suffix,jdbcType=VARCHAR},
+                #{reviewing,jdbcType=INTEGER},
+                #{fileState,jdbcType=INTEGER},
+                #{categoryId,jdbcType=INTEGER},
+                #{errorMessage,jdbcType=VARCHAR},
+                #{userId,jdbcType=INTEGER},
+                #{size,jdbcType=BIGINT},
+                #{thumbId ,jdbcType=VARCHAR},
+                #{mongoFileId ,jdbcType=VARCHAR},
+                #{md5 ,jdbcType=VARCHAR})
+
+    </insert>
+    <select id="selectFiles" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from files order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+    </select>
+    <select id="selectFilesByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from files
+                where user_id = #{userId,jdbcType=INTEGER}
+                 order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+    </select>
+    <select id="selectFileByGridfsId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from files where gridfs_id = #{GridfsId,jdbcType=VARCHAR}
+    </select>
+    <select id="selectFileById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select * from files where id = #{fileId,jdbcType=VARCHAR}
+    </select>
+    <select id="fileCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(*) from files
+    </select>
+    <select id="fileCountByUserId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(*) from files where user_id = #{userId,jdbcType=INTEGER}
+    </select>
+    <select id="fileCountByMd5" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from files where md5 = #{md5,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteFile" parameterType="java.lang.Integer" >
+        delete from files where id = #{fileId,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateFileState" parameterType="org.ccclll777.alldocsbackend.entity.File" >
+        update files set file_state = #{fileState,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateFileStateSimply" parameterType="java.lang.Integer" >
+        update files set file_state = #{fileState,jdbcType=INTEGER}
+        where id = #{fileId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateFileStateByMongoFileId" >
+        update files set file_state = #{fileState,jdbcType=INTEGER}
+        where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateErrorMessageByMongoFileId">
+        update files set error_message = #{errorMessage,jdbcType=VARCHAR}
+        where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateThumbIdByMongoFileId">
+        update files set thumb_id = #{ThumbId,jdbcType=VARCHAR}
+        where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
+    </update>
+</mapper>

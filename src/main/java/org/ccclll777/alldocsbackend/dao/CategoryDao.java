@@ -20,4 +20,5 @@ public interface CategoryDao {
     int haveCategory(String categoryName);
 
     int categoryCount();
+    Category selectCategoryById(Integer categoryId);
 }

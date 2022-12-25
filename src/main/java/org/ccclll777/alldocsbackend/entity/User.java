@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @Builder
 public class User extends AbstractAuditBase{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "非空")

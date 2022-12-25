@@ -7,6 +7,7 @@ import org.ccclll777.alldocsbackend.dao.RoleDao;
 import org.ccclll777.alldocsbackend.dao.RoleUserDao;
 import org.ccclll777.alldocsbackend.dao.UserDao;
 import org.ccclll777.alldocsbackend.entity.Role;
+import org.ccclll777.alldocsbackend.entity.RoleUser;
 import org.ccclll777.alldocsbackend.entity.User;
 import org.ccclll777.alldocsbackend.entity.dto.UserRegisterDTO;
 import org.ccclll777.alldocsbackend.enums.ErrorCode;
@@ -31,16 +32,17 @@ import java.util.regex.Pattern;
  */
 @Service
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+//@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
     public static final String USERNAME = "username:";
-    @Resource
-    private final UserDao userDao;
-    @Resource
-    private final RoleDao roleDao;
-    @Resource
-    private final RoleUserDao roleUserDao;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private  UserDao userDao;
+    @Autowired
+    private  RoleDao roleDao;
+    @Autowired
+    private  RoleUserDao roleUserDao;
+    @Autowired
+    private  BCryptPasswordEncoder bCryptPasswordEncoder;
     @Transactional(rollbackFor = Exception.class)
     public void save(UserRegisterDTO userRegisterRequest) {
         ensureUserNameNotExist(userRegisterRequest.getUserName());
@@ -92,6 +94,7 @@ public class UserService {
         return this.bCryptPasswordEncoder.matches(currentPassword, password);
     }
 
+
     private void ensureUserNameNotExist(String userName) {
         User user = userDao.selectUserByUserName(userName);
         if (user != null) {
@@ -125,27 +128,22 @@ public class UserService {
         return  Pattern.compile(regex).matcher(s).matches();
     }
     public BaseApiResult updateUser(User user){
-        if (StringUtils.hasText(user.getPassword())) {
-            if (!patternMatch(user.getPassword(), fieldRegx.get("password"))) {
-                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-            }
-        }
-        if (StringUtils.hasText(user.getEmail())) {
-            if (!patternMatch(user.getEmail(), fieldRegx.get("mail"))) {
-                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-            }
-        }
-
-        if (StringUtils.hasText(user.getPhone())) {
-            if (!patternMatch(user.getPhone(), fieldRegx.get("phone"))) {
-                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-            }
-        }
-        if (StringUtils.hasText(user.getNickName())) {
-            if (!patternMatch(user.getNickName(), fieldRegx.get("description"))) {
-                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-            }
-        }
+//        if (StringUtils.hasText(user.getPassword())) {
+//            if (!patternMatch(user.getPassword(), fieldRegx.get("password"))) {
+//                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
+//            }
+//        }
+//        if (StringUtils.hasText(user.getEmail())) {
+//            if (!patternMatch(user.getEmail(), fieldRegx.get("mail"))) {
+//                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
+//            }
+//        }
+//
+//        if (StringUtils.hasText(user.getPhone())) {
+//            if (!patternMatch(user.getPhone(), fieldRegx.get("phone"))) {
+//                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
+//            }
+//        }
             userDao.updateUser(user);
         return BaseApiResult.success("更新成功");
     }

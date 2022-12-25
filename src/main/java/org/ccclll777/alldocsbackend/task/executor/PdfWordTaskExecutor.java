@@ -18,6 +18,11 @@ public class PdfWordTaskExecutor extends TaskExecutor {
         PdfUtil.readPdfText(is, textFilePath);
     }
 
+    /**
+     * 将pdf的文档生成缩略图，并且临时保存下来
+     * @param is      文件流
+     * @param picPath 图片地址
+     */
     @Override
     protected void makeThumb(InputStream is, String picPath) {
         PdfUtil.pdfThumbnail(is, picPath);

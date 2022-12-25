@@ -11,12 +11,13 @@
   </resultMap>
 
 
-    <insert id="insertTag" parameterType="org.ccclll777.alldocsbackend.entity.Tag">
-        insert into tag (name,description,create_time,update_time)
+    <insert id="insertTag" useGeneratedKeys="true" keyProperty="id" parameterType="org.ccclll777.alldocsbackend.entity.Tag" >
+        insert into tag (name,description,create_time,update_time,user_id)
         values (#{name,jdbcType=VARCHAR},
                 #{description,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP},
-                #{updateTime,jdbcType=TIMESTAMP}
+                #{updateTime,jdbcType=TIMESTAMP},
+                #{userId,jdbcType=INTEGER}
                )
     </insert>
 
@@ -41,4 +42,9 @@
     <select id="haveTag" parameterType="java.lang.String" resultType="java.lang.Integer">
         select count(*) from tag where name = #{tagName,jdbcType=VARCHAR}
     </select>
+    <select id="selectTagByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from tag where name = #{tagName,jdbcType=VARCHAR}
+    </select>
+
+
 </mapper>

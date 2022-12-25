@@ -1,19 +1,17 @@
 package org.ccclll777.alldocsbackend.controller;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ccclll777.alldocsbackend.entity.User;
 import org.ccclll777.alldocsbackend.entity.dto.UserRegisterDTO;
+import org.ccclll777.alldocsbackend.entity.dto.UserUpdateDTO;
 import org.ccclll777.alldocsbackend.enums.ErrorCode;
 import org.ccclll777.alldocsbackend.service.UserService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -21,11 +19,11 @@ import java.util.List;
  */
 @RestController
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping("/user")
 @Api(tags = "用户")
 public class UserController {
-    private final UserService userService;
+    @Autowired
+    private  UserService userService;
     @PostMapping("/sign-up")
     @ApiOperation("用户注册")
     public BaseApiResult signUp(@RequestBody UserRegisterDTO userRegisterDTO) {
@@ -56,6 +54,8 @@ public class UserController {
         return BaseApiResult.success(user);
     }
 
+
+
     @ApiOperation(value = "根据用户名称查询", notes = "根据用户名称查询")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
     @GetMapping(value = "/getByUsername")
@@ -67,12 +67,14 @@ public class UserController {
     @ApiOperation(value = "更新用户信息", notes = "更新用户信息")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
     @PostMapping(value = "/updateUser")
-    public BaseApiResult updateUserInfo(@RequestBody User user) {
-        log.info("更新用户入参==={}", user.toString());
-
+    public BaseApiResult updateUserInfo(@RequestBody UserUpdateDTO userUpdateDTO) {
+        log.info("更新用户入参==={}", userUpdateDTO.toString());
+        User user = User.builder()
+                .id(userUpdateDTO.getId()).userName(userUpdateDTO.getUserName())
+                .nickName(userUpdateDTO.getNickName()).email(userUpdateDTO.getEmail())
+                .phone(userUpdateDTO.getPhone()).build();
         return userService.updateUser(user);
     }
-
     @ApiOperation(value = "根据id删除用户", notes = "根据id删除用户")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @DeleteMapping(value = "/deleteByUserId/{userId}")

@@ -6,11 +6,14 @@ import org.apache.commons.compress.utils.Lists;
 import org.ccclll777.alldocsbackend.entity.FileDocument;
 import org.ccclll777.alldocsbackend.entity.FileObj;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -27,11 +30,12 @@ import java.util.*;
 @Service
 public class ElasticService {
 
-    private static final String INDEX_NAME = "docwrite";
+    private static final String INDEX_NAME = "all-docs-index";
 
-    private static final String PIPELINE_NAME = "attachment.content";
-
+    private static final String PIPELINE_NAME = "attachment";
+    @Autowired
     private RestHighLevelClient client;
+    @Autowired
     private FileService fileService;
 
     /**
@@ -40,13 +44,33 @@ public class ElasticService {
      * 2.文件type
      * 3.文件的data 64编码
      */
+//    public void upload(FileObj file) throws IOException {
+//        System.out.println(file.getContent());
+//        System.out.println(file.getName());
+//        IndexRequest indexRequest = new IndexRequest(INDEX_NAME);
+//        //上传同时，使用attachment pipeline 进行提取文件
+//        String fileJson = (JSON.toJSONString(file));
+//        System.out.println("fileJson"+fileJson);
+//        indexRequest.source(fileJson, XContentType.JSON);
+//        indexRequest.setPipeline(PIPELINE_NAME);
+//        IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);
+//        System.out.println("index: "+index.getResult());
+//    }
     public void upload(FileObj file) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.field("data", file.getContent());
+            builder.field("title", file.getName());
+        }
+        builder.endObject();
         IndexRequest indexRequest = new IndexRequest(INDEX_NAME);
-        //上传同时，使用attachment pipeline 进行提取文件
-        indexRequest.source(JSON.toJSONString(file), XContentType.JSON);
-        indexRequest.setPipeline("attachment");
-        client.index(indexRequest, RequestOptions.DEFAULT);
+        indexRequest.source(builder);
+        //设置文件管道attachment
+        indexRequest.setPipeline(PIPELINE_NAME);
+        IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);
     }
+
 
     /**
      * 根据关键词，搜索对应的文件信息

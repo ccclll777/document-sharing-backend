@@ -40,8 +40,8 @@ spring:
     testOnBorrow: true
   servlet:
     multipart:
-      max-file-size: 30MB
-      max-request-size: 50MB
+      max-file-size: 100MB
+      max-request-size: 100MB
   thymeleaf:
     mode: HTML
     cache: false

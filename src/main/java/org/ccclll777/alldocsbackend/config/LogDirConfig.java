@@ -15,18 +15,18 @@ public class LogDirConfig extends PropertyDefinerBase {
     /**
      * 日志存放位置
      */
-    private String LOG_HOME;
+    private String LOG_HOME = "/Users/lichao/code/IDEAProject/all-docs-backend/target";
+//    private String LOG_HOME ;
 
     /**
      * 获取jar包的位置
      *
      * @return
      */
-    @Override
     public String getPropertyValue() {
         ApplicationHome h = new ApplicationHome(getClass());
         File jarF = h.getSource();
-        this.LOG_HOME = jarF.getParentFile().toString();
+//        this.LOG_HOME = jarF.getParentFile().toString();
         return this.LOG_HOME;
     }
 }

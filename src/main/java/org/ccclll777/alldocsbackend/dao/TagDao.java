@@ -19,4 +19,5 @@ public interface TagDao {
     int haveTag(String tagName);
 
     int tagCount();
+    Tag selectTagByName(String tagName);
 }

@@ -37,15 +37,14 @@ public abstract class TaskExecutor {
         try {
             uploadFileToEs(docInputStream, fileDocument, taskData);
         } catch (Exception e) {
-            throw new TaskRunException("建立索引的时候出错：", e);
+            throw new TaskRunException("建立索引时出错：{}", e);
         }
-
         docInputStream = new ByteArrayInputStream(downFileBytes(fileDocument.getGridfsId()));
         try {
             // 制作不同分辨率的缩略图
             updateFileThumb(docInputStream, taskData.getFileDocument(), taskData);
         } catch (Exception e) {
-            throw new TaskRunException("建立缩略图的时候出错啦！", e);
+            throw new TaskRunException("建立缩略图时出错", e);
         }
     }
 
@@ -87,7 +86,7 @@ public abstract class TaskExecutor {
 
         handleDescription(textFilePath, fileDocument);
 
-        // 被文本文件上传到gridFS系统中
+        // 将建立elastic索引的文本文件上传到gridFS系统中
         try (FileInputStream inputStream = new FileInputStream(textFilePath)) {
 
             FileService fileService = SpringApplicationContext.getBean(FileService.class);
@@ -97,7 +96,6 @@ public abstract class TaskExecutor {
                     inputStream,
                     FileFormatEnum.TEXT.getContentType());
             fileDocument.setTextFileId(txtObjId);
-
         } catch (IOException e) {
             throw new TaskRunException("存储文本文件报错了，请核对", e);
         }
@@ -162,10 +160,7 @@ public abstract class TaskExecutor {
     }
 
     /**
-     * @Author luojiarui
-     * @Description // 上传文件的缩略图
-     * @Date 17:48 2022/11/13
-     * @Param [inputStream, fileDocument]
+     * 传文件的缩略图
      **/
     public void updateFileThumb(InputStream inputStream, FileDocument fileDocument, TaskData taskData) throws IOException {
         String picPath = "./" + IdUtil.simpleUUID() + ".png";
@@ -183,6 +178,8 @@ public abstract class TaskExecutor {
                     thumbIns,
                     FileFormatEnum.PNG.getContentType());
             fileDocument.setThumbId(txtObjId);
+            //将缩略图的ID上传到Mysql中
+            fileService.updateThumbIdByMongoFileId(txtObjId,fileDocument.getId());
         } catch (IOException e) {
             throw new TaskRunException("存储缩略图文件报错了，请核对", e);
         }

@@ -201,11 +201,11 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 <!--        热部署-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-devtools</artifactId>-->
+<!--            <scope>runtime</scope>-->
+<!--        </dependency>-->
 <!--        log输出-->
         <dependency>
             <groupId>ch.qos.logback</groupId>

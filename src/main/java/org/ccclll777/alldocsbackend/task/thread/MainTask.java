@@ -80,9 +80,10 @@ public class MainTask implements RunnableTask {
     public void run() {
         FileDocument fileDocument = taskData.getFileDocument();
         if (null == taskExecutor || fileDocument == null) {
-            log.error("执行文件{}报错",fileDocument);
+            log.error("执行器执行文件{}报错",fileDocument);
             throw new TaskRunException("当前执行器初始化失败！");
         }
+        //如果已经存在当前
         if (StringUtils.hasText(fileDocument.getThumbId()) || StringUtils.hasText(fileDocument.getTextFileId())) {
             removeExistGridFs();
         }
