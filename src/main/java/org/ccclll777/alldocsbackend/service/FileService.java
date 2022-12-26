@@ -355,7 +355,6 @@ public class FileService {
                 return Optional.empty();
             }
             // 开启文件下载
-            GridFSDownloadOptions gridFSDownloadOptions = new GridFSDownloadOptions();
             try (GridFSDownloadStream in = gridFsBucket.openDownloadStream(fsFile.getObjectId())) {
                 if (in.getGridFSFile().getLength() > 0) {
                     GridFsResource resource = new GridFsResource(fsFile, in);
@@ -377,7 +376,6 @@ public class FileService {
      * @return
      */
     public byte[] getFileBytes(String thumbId) {
-
         if (StringUtils.hasText(thumbId)) {
             Query gridQuery = new Query().addCriteria(Criteria.where(FILE_NAME).is(thumbId));
             //从文件中读取
@@ -526,8 +524,35 @@ public class FileService {
         return searchFilesVOS;
     }
 
+    /**
+     * 搜索建议
+     * @param keyWord
+     * @return
+     * @throws IOException
+     */
     public List<String> searchSuggest(String keyWord) throws IOException {
         return  elasticService.searchSuggestion(keyWord);
     }
+
+    public FilesVO selectFIleByMongoFileId(String mongoFileId) {
+        File file = filesDao.selectFileByMongoFileId(mongoFileId);
+        if (file == null) {
+            return null;
+        }
+        String userName = userDao.selectUserById(file.getUserId()).getUserName();
+        String categoryName = categoryDao.selectCategoryById(file.getCategoryId()).getName();
+        String fileState = FileStateEnum.getMessage(file.getFileState());
+        String reviewState = file.getReviewing() == 1? "正在审查": "审查完毕";
+        List<String> tagNames = fileTagDao.selectTagNameById(file.getId());
+        FilesVO filesVO = FilesVO.builder()
+                .id(file.getId()).name(file.getName()).suffix(file.getSuffix())
+                .categoryName(categoryName).tagNames(tagNames)
+                .userName(userName).fileState(fileState)
+                .errorMessage(file.getErrorMessage()).reviewState(reviewState).size(ByteConverter.getSize(file.getSize()))
+                .thumbId(file.getThumbId()).createTime(file.getCreateTime())
+                .build();
+        return filesVO;
+    }
+
 
 }

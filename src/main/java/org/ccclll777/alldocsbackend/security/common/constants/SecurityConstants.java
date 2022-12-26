@@ -51,7 +51,9 @@ public final class SecurityConstants {
     // System WHITELIST
     public static final String[] SYSTEM_WHITELIST = {
             "/auth/login",
-            "/user/sign-up"
+            "/user/sign-up",
+            "/files/image/**",
+            "/files/view/**"
     };
 
     private SecurityConstants() {

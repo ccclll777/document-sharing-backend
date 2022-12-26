@@ -32,4 +32,6 @@ public interface FilesDao {
     int updateErrorMessageByMongoFileId(String mongoFileId, String errorMessage);
 
     int updateThumbIdByMongoFileId(String ThumbId, String mongoFileId);
+
+    File selectFileByMongoFileId(String mongoFileId);
 }

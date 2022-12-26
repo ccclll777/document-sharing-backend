@@ -20,7 +20,8 @@ public enum ErrorCode {
     UPLOAD_FAILED(1202,HttpStatus.INTERNAL_SERVER_ERROR,"上传的文件超过大小限制"),
     SQL_ERROR(1203,HttpStatus.INTERNAL_SERVER_ERROR,"数据库错误"),
     DELETE_FAILE(1024,HttpStatus.INTERNAL_SERVER_ERROR,"删除失败"),
-    IO_EXCEPTION(1025,HttpStatus.INTERNAL_SERVER_ERROR,"IO错误");
+    IO_EXCEPTION(1025,HttpStatus.INTERNAL_SERVER_ERROR,"IO错误"),
+    FILE_NOT_FOUND(1026,HttpStatus.INTERNAL_SERVER_ERROR,"未找到文件");
 
     private final int code;
 

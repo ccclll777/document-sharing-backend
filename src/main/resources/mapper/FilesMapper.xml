@@ -47,6 +47,9 @@
     <select id="selectFileByGridfsId" parameterType="java.lang.String" resultMap="BaseResultMap">
         select * from files where gridfs_id = #{GridfsId,jdbcType=VARCHAR}
     </select>
+    <select id="selectFileByMongoFileId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from files where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
+    </select>
     <select id="selectFileById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select * from files where id = #{fileId,jdbcType=VARCHAR}
     </select>

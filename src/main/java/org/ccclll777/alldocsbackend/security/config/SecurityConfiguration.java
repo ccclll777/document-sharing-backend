@@ -150,7 +150,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // swagger
                 .antMatchers(SecurityConstants.SWAGGER_WHITELIST).permitAll()
 //                .antMatchers(SecurityConstants.H2_CONSOLE).permitAll()
-                .antMatchers(HttpMethod.POST, SecurityConstants.SYSTEM_WHITELIST).permitAll()
+                .antMatchers(SecurityConstants.SYSTEM_WHITELIST).permitAll()
                 // 其他的接口都需要认证后才能请求
                 .anyRequest().authenticated()
                 .and()

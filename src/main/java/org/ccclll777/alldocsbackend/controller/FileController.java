@@ -22,17 +22,23 @@ import org.ccclll777.alldocsbackend.service.FileService;
 import org.ccclll777.alldocsbackend.service.TaskExecuteService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
-//@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping("/files")
 @Api(tags = "文档")
 public class FileController {
@@ -183,5 +189,47 @@ public class FileController {
         }
         List<String> searchSuggests = fileService.searchSuggest(keyWord);
         return  BaseApiResult.success(searchSuggests);
+    }
+
+    @ApiOperation(value = "文档详细信息")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(value = "/detail")
+    public BaseApiResult detail(@RequestParam(value = "mongoFileId") String mongoFileId)   {
+        FilesVO filesVO = fileService.selectFIleByMongoFileId(mongoFileId);
+        if (filesVO == null) {
+            return  BaseApiResult.error(ErrorCode.FILE_NOT_FOUND.getCode(),ErrorCode.FILE_NOT_FOUND.getMessage());
+        }
+        return  BaseApiResult.success(filesVO);
+    }
+
+    @ApiOperation(value = "预览图")
+//    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(value = "/image/{thumbId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public byte[] previewThumb(@PathVariable String thumbId) {
+        return fileService.getFileBytes(thumbId);
+    }
+
+    /**
+     * 在线显示文件
+     *
+     * @param id 文件id
+     * @return
+     */
+    @ApiOperation(value = "在线显示文件")
+//    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping("/view/{id}")
+    public ResponseEntity<Object> serveFileOnline(@PathVariable String id) throws UnsupportedEncodingException {
+        Optional<FileDocument> file = fileService.getById(id);
+        if (file.isPresent()) {
+            return ResponseEntity.ok()
+                    // 这里需要进行中文编码
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "fileName=" + URLEncoder.encode(file.get().getName(), "utf-8"))
+                    .header(HttpHeaders.CONTENT_TYPE, file.get().getContentType())
+                    .header(HttpHeaders.CONTENT_LENGTH, file.get().getSize() + "").header("Connection", "close")
+                    .header(HttpHeaders.CONTENT_LENGTH, file.get().getSize() + "")
+                    .body(file.get().getContent());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorCode.FILE_NOT_FOUND);
+        }
     }
 }

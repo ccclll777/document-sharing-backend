@@ -3,6 +3,7 @@ package org.ccclll777.alldocsbackend.entity.vo;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 @Data
 @Builder
@@ -17,4 +18,7 @@ public class FilesVO {
     private String errorMessage;
     private String reviewState;
     private String size;
+    private String thumbId;
+    private Date createTime;
+
 }
