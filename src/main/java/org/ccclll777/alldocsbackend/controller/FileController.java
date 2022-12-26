@@ -13,7 +13,9 @@ import org.ccclll777.alldocsbackend.entity.User;
 import org.ccclll777.alldocsbackend.entity.dto.FileDTO;
 import org.ccclll777.alldocsbackend.entity.dto.UploadDTO;
 import org.ccclll777.alldocsbackend.entity.vo.FilesVO;
+import org.ccclll777.alldocsbackend.entity.vo.SearchFilesVO;
 import org.ccclll777.alldocsbackend.enums.ErrorCode;
+import org.ccclll777.alldocsbackend.intercepter.SensitiveFilter;
 import org.ccclll777.alldocsbackend.security.common.constants.SecurityConstants;
 import org.ccclll777.alldocsbackend.security.common.utils.JwtTokenUtils;
 import org.ccclll777.alldocsbackend.service.FileService;
@@ -149,4 +151,37 @@ public class FileController {
         return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除文档失败");
     }
 
+    @ApiOperation(value = "根据关键词查询文档信息")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(value = "/search")
+    public BaseApiResult deleteFile(@RequestParam(value = "keyWord") String keyWord) throws IOException  {
+        if (StringUtils.hasText(keyWord) ) {
+            //非法敏感词汇判断
+            SensitiveFilter filter = SensitiveFilter.getInstance();
+            int n = filter.checkSensitiveWord(keyWord, 0, 1);
+            //存在非法字符
+            if (n > 0) {
+                log.info("这个人输入了非法字符--> {},不知道他到底要查什么~", keyWord);
+            }
+        }
+        List<SearchFilesVO> searchFilesVOS = fileService.search(keyWord);
+        return  BaseApiResult.success(searchFilesVOS);
+    }
+
+    @ApiOperation(value = "搜索提示")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(value = "/hint")
+    public BaseApiResult searchHint(@RequestParam(value = "keyWord") String keyWord) throws IOException  {
+        if (StringUtils.hasText(keyWord) ) {
+            //非法敏感词汇判断
+            SensitiveFilter filter = SensitiveFilter.getInstance();
+            int n = filter.checkSensitiveWord(keyWord, 0, 1);
+            //存在非法字符
+            if (n > 0) {
+                log.info("这个人输入了非法字符--> {},不知道他到底要查什么~", keyWord);
+            }
+        }
+        List<String> searchSuggests = fileService.searchSuggest(keyWord);
+        return  BaseApiResult.success(searchSuggests);
+    }
 }

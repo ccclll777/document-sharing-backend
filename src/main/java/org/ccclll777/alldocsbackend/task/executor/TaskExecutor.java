@@ -3,6 +3,7 @@ package org.ccclll777.alldocsbackend.task.executor;
 import cn.hutool.core.util.IdUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apdplat.word.WordSegmenter;
 import org.ccclll777.alldocsbackend.AllDocsBackendApplication;
 import org.ccclll777.alldocsbackend.entity.FileDocument;
 import org.ccclll777.alldocsbackend.entity.FileObj;
@@ -12,6 +13,7 @@ import org.ccclll777.alldocsbackend.service.FileService;
 import org.ccclll777.alldocsbackend.task.data.TaskData;
 import org.ccclll777.alldocsbackend.task.exception.TaskRunException;
 import org.ccclll777.alldocsbackend.utils.SpringApplicationContext;
+import org.ccclll777.alldocsbackend.utils.WordSegmentation;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -76,8 +78,11 @@ public abstract class TaskExecutor {
             fileObj.setId(fileDocument.getMd5());
             fileObj.setName(fileDocument.getName());
             fileObj.setType(fileDocument.getContentType());
+
             //读取文件
             fileObj.readFile(textFilePath);
+            List<String> list = WordSegmentation.cutWord(fileObj.getName());
+            fileObj.setSuggestion(list);
             this.upload(fileObj);
 
         } catch (IOException | TaskRunException e) {

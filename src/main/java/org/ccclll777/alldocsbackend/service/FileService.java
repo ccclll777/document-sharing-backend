@@ -9,14 +9,21 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.ccclll777.alldocsbackend.dao.*;
 import org.ccclll777.alldocsbackend.entity.File;
 import org.ccclll777.alldocsbackend.entity.FileDocument;
 import org.ccclll777.alldocsbackend.entity.Tag;
 import org.ccclll777.alldocsbackend.entity.vo.FilesVO;
+import org.ccclll777.alldocsbackend.entity.vo.SearchFilesVO;
 import org.ccclll777.alldocsbackend.enums.FileStateEnum;
 import org.ccclll777.alldocsbackend.task.exception.TaskRunException;
 import org.ccclll777.alldocsbackend.utils.ByteConverter;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -26,6 +33,7 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +41,7 @@ import java.beans.Transient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -497,5 +506,28 @@ public class FileService {
        return filesDao.updateThumbIdByMongoFileId(ThumbId,mongoFileId);
     }
 
+    /**
+     * 根据关键词在elasticsearch中查询文档信息
+     * @param keyWord
+     */
+    public List<SearchFilesVO> search(String keyWord) throws IOException {
+        List<FileDocument> esFileDocuments;
+        List<SearchFilesVO>  searchFilesVOS = new ArrayList<>();
+
+        esFileDocuments = elasticService.search(keyWord);
+        for(FileDocument fileDocument: esFileDocuments) {
+            SearchFilesVO searchFilesVO = SearchFilesVO.builder()
+                    .mongoFileId(fileDocument.getId())
+                    .description(fileDocument.getDescription())
+                    .name(fileDocument.getName())
+                    .build();
+            searchFilesVOS.add(searchFilesVO);
+        }
+        return searchFilesVOS;
+    }
+
+    public List<String> searchSuggest(String keyWord) throws IOException {
+        return  elasticService.searchSuggestion(keyWord);
+    }
 
 }

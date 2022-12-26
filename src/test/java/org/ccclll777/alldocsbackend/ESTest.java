@@ -1,5 +1,10 @@
 package org.ccclll777.alldocsbackend;
 
+import org.apdplat.word.WordSegmenter;
+import org.apdplat.word.segmentation.Word;
+import org.ccclll777.alldocsbackend.entity.FileDocument;
+import org.ccclll777.alldocsbackend.service.ElasticService;
+import org.ccclll777.alldocsbackend.utils.WordSegmentation;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.ingest.PutPipelineRequest;
@@ -24,12 +29,15 @@ import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ESTest {
     @Autowired
     private RestHighLevelClient client;
+    @Autowired
+    ElasticService elasticService;
 
     /**
      * 创建attachment管道
@@ -112,12 +120,12 @@ public class ESTest {
     }
     @Test
     public void testSearch() throws Exception {
-        String keyword = "netty";
+        String keyword = "疫情";
 
-        SearchRequest searchRequest = new SearchRequest("docwrite");
+        SearchRequest searchRequest = new SearchRequest("all-docs-index");
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyword,"attachment.content","attachment.title"));
+        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyword,"attachment.content","attachment.name"));
         sourceBuilder.from(0); //从第几页开始
         sourceBuilder.size(10);
         searchRequest.source(sourceBuilder);
@@ -128,4 +136,33 @@ public class ESTest {
             System.out.println(hit.getSourceAsString());
         }}
 
+    @Test
+    public void search() throws Exception {
+        String keyWord = "居家";
+        List<FileDocument> esDoc  = elasticService.search(keyWord);
+        for(FileDocument fileDocument : esDoc) {
+            System.out.println(fileDocument.getDescription());
+        }
+
+//        System.out.println(esDoc.get(0).getContent());
+
+    }
+    @Test
+    public void searchSuggest() throws Exception {
+        String keyWord = "原";
+        List<String> suggestions  = elasticService.searchSuggestion(keyWord);
+        for(String s : suggestions) {
+            System.out.println(s);
+        }
+
+//        System.out.println(esDoc.get(0).getContent());
+
+    }
+
+    @Test
+    public void cutWord(){
+        for(String word : WordSegmentation.cutWord("杨尚川是APDPlat应用级产品开发平台的作者")){
+            System.out.println(word);
+        }
+    }
 }

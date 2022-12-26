@@ -65,7 +65,7 @@ public class ElasticSearchPipeline {
         SearchRequest searchRequest = new SearchRequest("all-docs-index");
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyword,"attachment.content","attachment.title"));
+        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyword,"attachment.content","attachment.name"));
         sourceBuilder.from(0); //从第几页开始
         sourceBuilder.size(10);
         searchRequest.source(sourceBuilder);

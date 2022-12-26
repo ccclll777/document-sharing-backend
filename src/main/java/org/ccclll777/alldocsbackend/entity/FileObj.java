@@ -1,6 +1,7 @@
 package org.ccclll777.alldocsbackend.entity;
 
 import lombok.Data;
+import org.ccclll777.alldocsbackend.utils.WordSegmentation;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -9,7 +10,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * @ClassName FileObj
@@ -47,6 +50,7 @@ public class FileObj {
     @Field(type = FieldType.Text, analyzer="ik_smart")
     private String content;
 
+    private List<String> suggestion;
 
     /**
      * 读取文件
@@ -56,6 +60,18 @@ public class FileObj {
         //读文件
         File file = new File(path);
         byte[] bytes = getContent(file);
+//        //转化为文本文件
+//        String content  = Arrays.toString(bytes);
+//        System.out.println(content);
+//        List<String> suggestions_content = WordSegmentation.cutWord(content);
+//        this.suggestion.addAll(suggestions_content);
+//        if (this.name != null) {
+//            List<String> suggestions_name = WordSegmentation.cutWord(this.name);
+//            this.suggestion.addAll(suggestions_name);
+//        }
+//        for (String s : this.suggestion) {
+//            System.out.println(s);
+//        }
         //将文件内容转化为base64编码
         this.content = Base64.getEncoder().encodeToString(bytes);
     }
