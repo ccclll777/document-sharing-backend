@@ -45,4 +45,8 @@ public class File {
     private String MongoFileId;
 
     private String md5;
+    /**
+     * 点击量
+     */
+    private Long hits;
 }

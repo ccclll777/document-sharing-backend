@@ -17,6 +17,7 @@
       <result column="thumb_id" property="thumbId" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result column="mongo_file_id" property="mongoFileId" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result column="md5" property="md5" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="hits" property="hits" javaType="java.lang.Long" jdbcType="BIGINT" />
   </resultMap>
     <insert id="insertFile" useGeneratedKeys="true" keyProperty="id" parameterType="org.ccclll777.alldocsbackend.entity.File">
         insert into files (gridfs_id,name,create_time,content_type,suffix,reviewing,file_state,category_id,error_message,user_id,size,thumb_id,mongo_file_id,md5)
@@ -37,30 +38,45 @@
 
     </insert>
     <select id="selectFiles" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from files order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+        select id,gridfs_id,name,create_time,content_type,
+               suffix,reviewing,file_state,category_id,error_message,
+               user_id,size,thumb_id,mongo_file_id,md5,hits
+        from files order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
     </select>
     <select id="selectFilesByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from files
+        select id,gridfs_id,name,create_time,content_type,
+               suffix,reviewing,file_state,category_id,error_message,
+               user_id,size,thumb_id,mongo_file_id,md5,hits
+            from files
                 where user_id = #{userId,jdbcType=INTEGER}
                  order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
     </select>
     <select id="selectFileByGridfsId" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select * from files where gridfs_id = #{GridfsId,jdbcType=VARCHAR}
+        select id,gridfs_id,name,create_time,content_type,
+               suffix,reviewing,file_state,category_id,error_message,
+               user_id,size,thumb_id,mongo_file_id,md5,hits
+        from files where gridfs_id = #{GridfsId,jdbcType=VARCHAR}
     </select>
     <select id="selectFileByMongoFileId" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select * from files where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
+        select id,gridfs_id,name,create_time,content_type,
+               suffix,reviewing,file_state,category_id,error_message,
+               user_id,size,thumb_id,mongo_file_id,md5,hits
+        from files where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
     </select>
     <select id="selectFileById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from files where id = #{fileId,jdbcType=VARCHAR}
+        select id,gridfs_id,name,create_time,content_type,
+               suffix,reviewing,file_state,category_id,error_message,
+               user_id,size,thumb_id,mongo_file_id,md5,hits
+        from files where id = #{fileId,jdbcType=VARCHAR}
     </select>
     <select id="fileCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-        select count(*) from files
+        select count(id) from files
     </select>
     <select id="fileCountByUserId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-        select count(*) from files where user_id = #{userId,jdbcType=INTEGER}
+        select count(id) from files where user_id = #{userId,jdbcType=INTEGER}
     </select>
     <select id="fileCountByMd5" parameterType="java.lang.String" resultType="java.lang.Integer">
-        select count(*) from files where md5 = #{md5,jdbcType=VARCHAR}
+        select count(id) from files where md5 = #{md5,jdbcType=VARCHAR}
     </select>
     <delete id="deleteFile" parameterType="java.lang.Integer" >
         delete from files where id = #{fileId,jdbcType=INTEGER}
@@ -89,4 +105,14 @@
         update files set thumb_id = #{ThumbId,jdbcType=VARCHAR}
         where mongo_file_id = #{mongoFileId,jdbcType=VARCHAR}
     </update>
+    <update id="updateHits">
+        update files set hits = hits + 1 where id = #{fileId}
+    </update>
+
+    <select id="selectFilesOrderByTime" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select id,gridfs_id,name,create_time,content_type,
+               suffix,reviewing,file_state,category_id,error_message,
+               user_id,size,thumb_id,mongo_file_id,md5,hits
+        from files order by create_time limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+    </select>
 </mapper>

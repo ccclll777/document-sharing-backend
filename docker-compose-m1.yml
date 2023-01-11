@@ -18,31 +18,31 @@ services:
 #      MONGO_INITDB_DATABASE: all-docs
     tty: true
 
-  elasticsearch:
-    image: arm64v8/elasticsearch:7.16.2
-    container_name: all-docs-elasticsearch
-#    restart: always
-    volumes:
-      - ./data/elasticsearch/data:/usr/share/elasticsearch/data:rw
-      - ./data/elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - ./data/elasticsearch/conf/jvm.options:/usr/share/elasticsearch/config/jvm.options
-      - ./data/elasticsearch/logs:/user/share/elasticsearch/logs:rw
-    ports:
-      - 9200:9200
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS="-Xms512m -Xmx512m"
-
-  kibana:
-    image: arm64v8/kibana:7.16.2
-    ports:
-      - "5601:5601"
-    container_name: all-docs-kibana
-    #restart: always
-    depends_on:
-      - elasticsearch
-    volumes:
-      - ./data/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+#  elasticsearch:
+#    image: arm64v8/elasticsearch:7.16.2
+#    container_name: all-docs-elasticsearch
+##    restart: always
+#    volumes:
+#      - ./data/elasticsearch/data:/usr/share/elasticsearch/data:rw
+#      - ./data/elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+#      - ./data/elasticsearch/conf/jvm.options:/usr/share/elasticsearch/config/jvm.options
+#      - ./data/elasticsearch/logs:/user/share/elasticsearch/logs:rw
+#    ports:
+#      - 9200:9200
+#    environment:
+#      - discovery.type=single-node
+#      - ES_JAVA_OPTS="-Xms512m -Xmx512m"
+#
+#  kibana:
+#    image: arm64v8/kibana:7.16.2
+#    ports:
+#      - "5601:5601"
+#    container_name: all-docs-kibana
+#    #restart: always
+#    depends_on:
+#      - elasticsearch
+#    volumes:
+#      - ./data/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
 
   redis:
     image: arm64v8/redis:latest

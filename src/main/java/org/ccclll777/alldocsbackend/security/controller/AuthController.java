@@ -67,7 +67,7 @@ public class AuthController {
     @PostMapping("/logout")
     @ApiOperation("退出")
     public BaseApiResult logout() {
-        authUserService.removeToken();
+//        authUserService.removeToken();
         return BaseApiResult.success("退出登录成功");
     }
 }

@@ -34,16 +34,16 @@
     </delete>
 
     <select id="selectTagList" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from tag order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+        select id,name,description,user_id,create_time,update_time from tag order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
     </select>
     <select id="tagCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-        select count(*) from tag
+        select count(id) from tag
     </select>
     <select id="haveTag" parameterType="java.lang.String" resultType="java.lang.Integer">
-        select count(*) from tag where name = #{tagName,jdbcType=VARCHAR}
+        select count(id) from tag where name = #{tagName,jdbcType=VARCHAR}
     </select>
     <select id="selectTagByName" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select * from tag where name = #{tagName,jdbcType=VARCHAR}
+        select id,name,description,user_id,create_time,update_time from tag where name = #{tagName,jdbcType=VARCHAR}
     </select>
 
 

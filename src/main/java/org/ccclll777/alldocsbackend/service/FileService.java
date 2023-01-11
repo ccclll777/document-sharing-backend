@@ -48,13 +48,9 @@ import java.util.stream.Collectors;
 //@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FileService {
     private static final String COLLECTION_NAME = "files";
-
     private static final String PDF_SUFFIX = ".pdf";
-
     private static final String FILE_NAME = "filename";
-
     private static final String CONTENT = "content";
-
     private static final String[] EXCLUDE_FIELD = new String[]{"md5", "content", "contentType", "suffix", "description",
             "gridfsId", "thumbId", "textFileId", "errorMsg"};
     @Autowired
@@ -145,7 +141,7 @@ public class FileService {
      * @param gridfsId
      * @param categoryId
      */
-    @Transactional
+    @Transactional(rollbackFor=Exception.class)
     public void saveWhenSaveDoc(FileDocument fileDocument,String gridfsId,Integer categoryId,Integer userId) {
         try {
             if(fileDocument == null ) {
@@ -258,7 +254,7 @@ public class FileService {
             throw new TaskRunException("更新文档状态信息==>出错==>{}", e);
         }
     }
-    @Transactional
+    @Transactional(rollbackFor=Exception.class)
     public void updateDatabaseState(String mongoFileId,String errorMsg,Integer state) {
         try {
             //先更新数据库
@@ -448,7 +444,7 @@ public class FileService {
         }
         return -1;
     }
-    @Transactional
+    @Transactional(rollbackFor=Exception.class)
     public void deleteFileAndTag(int fileId) {
         try {
             filesDao.deleteFile(fileId);
@@ -487,7 +483,7 @@ public class FileService {
             List<String> tagNames = fileTagDao.selectTagNameById(file.getId());
             FilesVO filesVO = FilesVO.builder()
                     .id(file.getId()).name(file.getName()).suffix(file.getSuffix())
-                    .categoryName(categoryName).tagNames(tagNames)
+                    .categoryName(categoryName).tagNames(tagNames).mongoFileId(file.getMongoFileId())
                     .userName(userName).reviewState(reviewState).size(ByteConverter.getSize(file.getSize())).build();
             filesVOs.add(filesVO);
         }
@@ -534,8 +530,14 @@ public class FileService {
         return  elasticService.searchSuggestion(keyWord);
     }
 
+    /**
+     * 查看文档详情
+     * @param mongoFileId
+     * @return
+     */
     public FilesVO selectFIleByMongoFileId(String mongoFileId) {
         File file = filesDao.selectFileByMongoFileId(mongoFileId);
+        filesDao.updateHits(file.getId());
         if (file == null) {
             return null;
         }

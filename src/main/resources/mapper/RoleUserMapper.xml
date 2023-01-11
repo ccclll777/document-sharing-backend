@@ -7,11 +7,13 @@
       <result column="role_id" property="roleId" javaType="java.lang.Integer" jdbcType="INTEGER" />
   </resultMap>
   <select id="selectRoleUserByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select * from sys_role_user where user_id = #{userId,jdbcType=INTEGER}
+    select id,user_id,role_id from sys_role_user where user_id = #{userId,jdbcType=INTEGER}
   </select>
     <insert id="insertRoleUser" parameterType="org.ccclll777.alldocsbackend.entity.RoleUser">
         insert into sys_role_user (user_id, role_id)
         values (#{userId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER})
     </insert>
-
+    <delete id="deleteRoleUser" parameterType="java.lang.Integer" >
+        delete from sys_role_user where user_id = #{userId,jdbcType=INTEGER}
+    </delete>
 </mapper>

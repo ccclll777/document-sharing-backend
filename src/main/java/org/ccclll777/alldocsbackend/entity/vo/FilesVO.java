@@ -19,6 +19,7 @@ public class FilesVO {
     private String reviewState;
     private String size;
     private String thumbId;
+    private String mongoFileId;
     private Date createTime;
 
 }

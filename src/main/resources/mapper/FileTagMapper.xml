@@ -19,6 +19,10 @@
                       on  A.tag_id=B.id
         where A.file_id = #{fileId,jdbcType=INTEGER}
     </select>
+    <select id="selectFilesByTagId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select file_id from file_tag
+        where tag_id = #{tagId,jdbcType=INTEGER}
+    </select>
 
     <delete id="deleteFileTag" parameterType="java.lang.Integer" >
         delete from file_tag where file_id = #{fileId,jdbcType=INTEGER}

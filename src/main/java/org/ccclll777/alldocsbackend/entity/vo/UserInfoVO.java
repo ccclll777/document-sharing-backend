@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.ccclll777.alldocsbackend.entity.User;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -14,9 +15,12 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class UserInfoVO  {
     private Integer id;
-        private String userName;
+    private String userName;
     private String nickName;
     private String phone;
     private String email;
     private Integer role;
+    private Integer status;
+    private Date createTime;
+    private Date updateTime;
 }

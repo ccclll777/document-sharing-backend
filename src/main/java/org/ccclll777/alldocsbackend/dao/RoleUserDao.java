@@ -11,5 +11,5 @@ public interface RoleUserDao {
 
     List<RoleUser> selectRoleUserByUserId(Integer userId);
     int insertRoleUser(Integer userId, Integer roleId);
-
+    int deleteRoleUser(Integer userId);
 }

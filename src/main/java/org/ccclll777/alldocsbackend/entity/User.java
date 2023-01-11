@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class User extends AbstractAuditBase{
     @Id
     private Integer id;
-
     @NotBlank(message = "非空")
     private String userName;
     private String password;

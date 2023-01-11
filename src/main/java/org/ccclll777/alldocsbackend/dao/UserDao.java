@@ -28,4 +28,6 @@ public interface UserDao {
     int updateUser(User user);
 
     int deleteUser(Integer userId);
+    int userCount();
+
 }

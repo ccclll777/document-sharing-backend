@@ -18,6 +18,7 @@ import org.ccclll777.alldocsbackend.enums.ErrorCode;
 import org.ccclll777.alldocsbackend.intercepter.SensitiveFilter;
 import org.ccclll777.alldocsbackend.security.common.constants.SecurityConstants;
 import org.ccclll777.alldocsbackend.security.common.utils.JwtTokenUtils;
+import org.ccclll777.alldocsbackend.service.FileListService;
 import org.ccclll777.alldocsbackend.service.FileService;
 import org.ccclll777.alldocsbackend.service.TaskExecuteService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
@@ -31,10 +32,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -44,6 +49,8 @@ import java.util.Optional;
 public class FileController {
     @Autowired
     private FileService fileService;
+    @Autowired
+    private FileListService fileListService;
     @Autowired
     private TaskExecuteService taskExecuteService;
 
@@ -203,7 +210,6 @@ public class FileController {
     }
 
     @ApiOperation(value = "预览图")
-//    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
     @GetMapping(value = "/image/{thumbId}", produces = MediaType.IMAGE_PNG_VALUE)
     public byte[] previewThumb(@PathVariable String thumbId) {
         return fileService.getFileBytes(thumbId);
@@ -216,7 +222,6 @@ public class FileController {
      * @return
      */
     @ApiOperation(value = "在线显示文件")
-//    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
     @GetMapping("/view/{id}")
     public ResponseEntity<Object> serveFileOnline(@PathVariable String id) throws UnsupportedEncodingException {
         Optional<FileDocument> file = fileService.getById(id);
@@ -232,4 +237,6 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorCode.FILE_NOT_FOUND);
         }
     }
+
+
 }

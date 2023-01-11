@@ -13,4 +13,6 @@ public interface FileTagDao {
 
     int deleteFileTag(Integer fileId);
 
+    List<Integer> selectFilesByTagId(Integer tagId);
+
 }

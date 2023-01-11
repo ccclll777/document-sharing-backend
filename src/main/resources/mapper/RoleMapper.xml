@@ -10,13 +10,19 @@
       <result column="data_scope" property="dataScope" javaType="java.lang.Character" jdbcType="CHAR" />
   </resultMap>
   <select id="selectRoleById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from sys_role where id = #{id,jdbcType=INTEGER}
+        select
+            id,role_name,description,create_time,update_time,data_scope
+        from sys_role where id = #{id,jdbcType=INTEGER}
   </select>
     <select id="selectRoleByName" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select * from sys_role where role_name = #{roleName,jdbcType=VARCHAR}
+        select  id,role_name,description,create_time,update_time,data_scope
+        from sys_role
+        where role_name = #{roleName,jdbcType=VARCHAR}
     </select>
 
     <select id="selectRoleByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from sys_role where id in  (select role_id from sys_role_user where user_id = #{userId,jdbcType=INTEGER})
+        select  id,role_name,description,create_time,update_time,data_scope
+        from sys_role
+        where id in  (select role_id from sys_role_user where user_id = #{userId,jdbcType=INTEGER})
     </select>
 </mapper>

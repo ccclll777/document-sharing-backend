@@ -25,10 +25,8 @@ import java.util.Date;
 public abstract class AbstractAuditBase {
     @CreatedDate
     @Column(updatable = false)
-//    @JsonIgnore
     private Date createTime = new Date();
     @LastModifiedDate
-//    @JsonIgnore
     private Date updateTime = new Date();
 
 }

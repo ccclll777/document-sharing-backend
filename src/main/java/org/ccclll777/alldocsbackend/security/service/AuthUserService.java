@@ -101,8 +101,8 @@ public class AuthUserService {
         return false;
     }
 
-    public void removeToken() {
-        stringRedisTemplate.delete(currentUserUtils.getCurrentUser().getId().toString());
-    }
+//    public void removeToken() {
+//        stringRedisTemplate.delete(currentUserUtils.getCurrentUser().getId().toString());
+//    }
 
 }

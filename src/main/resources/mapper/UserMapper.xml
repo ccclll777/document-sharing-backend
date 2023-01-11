@@ -5,7 +5,7 @@
       <result column="id" property="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result column="password" property="password" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <result column="nike_name" property="nikeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="nick_name" property="nickName" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result column="phone" property="phone" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result column="email" property="email" javaType="java.lang.String" jdbcType="VARCHAR" />
       <result column="status" property="status" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -29,9 +29,19 @@
     </insert>
 
     <select id="selectUserList" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select * from sys_user order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
+        select id,
+               user_name,
+               nick_name,
+               phone,
+               email,
+               status,
+               create_time,
+               update_time
+        from sys_user order by id limit #{limit,jdbcType=INTEGER} offset #{offset,jdbcType=INTEGER}
     </select>
-
+    <select id="userCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(id) from sys_user
+    </select>
     <update id="updateUser" parameterType="org.ccclll777.alldocsbackend.entity.User" >
         update sys_user set nick_name=#{nickName,jdbcType=VARCHAR},
                             phone = #{phone,jdbcType=VARCHAR},
@@ -44,4 +54,5 @@
     <delete id="deleteUser" parameterType="java.lang.Integer" >
        delete from sys_user where id = #{userId,jdbcType=INTEGER}
     </delete>
+
 </mapper>

@@ -1,27 +1,24 @@
 package org.ccclll777.alldocsbackend.service;
 
 import com.google.common.collect.ImmutableMap;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ccclll777.alldocsbackend.dao.RoleDao;
 import org.ccclll777.alldocsbackend.dao.RoleUserDao;
 import org.ccclll777.alldocsbackend.dao.UserDao;
 import org.ccclll777.alldocsbackend.entity.Role;
-import org.ccclll777.alldocsbackend.entity.RoleUser;
 import org.ccclll777.alldocsbackend.entity.User;
 import org.ccclll777.alldocsbackend.entity.dto.UserRegisterDTO;
-import org.ccclll777.alldocsbackend.enums.ErrorCode;
+import org.ccclll777.alldocsbackend.entity.vo.UserInfoVO;
 import org.ccclll777.alldocsbackend.enums.RoleType;
 import org.ccclll777.alldocsbackend.exception.RoleNotFoundException;
 import org.ccclll777.alldocsbackend.exception.UserNameAlreadyExistException;
+import org.ccclll777.alldocsbackend.security.service.AuthUserService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +29,14 @@ import java.util.regex.Pattern;
  */
 @Service
 @Slf4j
-//@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
     public static final String USERNAME = "username:";
     @Autowired
     private  UserDao userDao;
     @Autowired
     private  RoleDao roleDao;
+    @Autowired
+    private AuthUserService authUserService;
     @Autowired
     private  RoleUserDao roleUserDao;
     @Autowired
@@ -55,15 +53,15 @@ public class UserService {
             log.error("RoleNotFoundException:{}",RoleType.USER.getRoleName());
             throw new RoleNotFoundException(ImmutableMap.of("roleName", RoleType.USER.getRoleName()));
         }
-        Role managerRole = roleDao.selectRoleByName(RoleType.MANAGER.getRoleName());
-        if ( managerRole == null) {
-            log.error("RoleNotFoundException:{}",RoleType.USER.getRoleName());
-            throw new RoleNotFoundException(ImmutableMap.of("roleName", RoleType.MANAGER.getRoleName()));
-        }
+//        Role managerRole = roleDao.selectRoleByName(RoleType.MANAGER.getRoleName());
+//        if ( managerRole == null) {
+//            log.error("RoleNotFoundException:{}",RoleType.USER.getRoleName());
+//            throw new RoleNotFoundException(ImmutableMap.of("roleName", RoleType.MANAGER.getRoleName()));
+//        }
         //注册成功后 需要获取到用户ID，然后添加权限
         User newUser = userDao.selectUserByUserName(user.getUserName());
         roleUserDao.insertRoleUser(newUser.getId(),userRole.getId());
-        roleUserDao.insertRoleUser(newUser.getId(),managerRole.getId());
+//        roleUserDao.insertRoleUser(newUser.getId(),managerRole.getId());
     }
     @Transactional(rollbackFor = Exception.class)
     public void saveUser(User user) {
@@ -102,9 +100,24 @@ public class UserService {
             throw new UserNameAlreadyExistException(ImmutableMap.of(USERNAME, userName));
         }
     }
-    public List<User> selectUserList(int pageNum, int pageSize) {
+    public List<UserInfoVO> selectUserList(int pageNum, int pageSize) {
         int offset = pageNum * pageSize;
-        return userDao.selectUserList(pageSize,offset);
+        List<User> users= userDao.selectUserList(pageSize,offset);
+        List<UserInfoVO> userInfoVOS = new ArrayList<>();
+        for (User user : users) {
+            int role = authUserService.getUserRole(user.getId());
+            UserInfoVO userInfoVO = UserInfoVO.builder().id(user.getId()).userName(user.getUserName())
+                    .email(user.getEmail()).nickName(user.getNickName())
+                    .phone(user.getPhone()).role(role).status(user.getStatus())
+                    .updateTime(user.getUpdateTime()).createTime(user.getCreateTime())
+                    .build();
+            userInfoVOS.add(userInfoVO);
+        }
+        return userInfoVOS;
+    }
+
+    public Integer getUserCount() {
+        return userDao.userCount();
     }
 
     public User selectUserById(int userId) {
@@ -124,31 +137,16 @@ public class UserService {
         // 1-140个任意字符
         fieldRegx.put("description", "(.*){1,140}");
     }
-    private boolean patternMatch(String s, String regex) {
-        return  Pattern.compile(regex).matcher(s).matches();
-    }
-    public BaseApiResult updateUser(User user){
-//        if (StringUtils.hasText(user.getPassword())) {
-//            if (!patternMatch(user.getPassword(), fieldRegx.get("password"))) {
-//                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-//            }
-//        }
-//        if (StringUtils.hasText(user.getEmail())) {
-//            if (!patternMatch(user.getEmail(), fieldRegx.get("mail"))) {
-//                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-//            }
-//        }
-//
-//        if (StringUtils.hasText(user.getPhone())) {
-//            if (!patternMatch(user.getPhone(), fieldRegx.get("phone"))) {
-//                return BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), ErrorCode.PARAMS_PROCESS_FAILD.getMessage());
-//            }
-//        }
+    public BaseApiResult updateUser(User user) {
             userDao.updateUser(user);
         return BaseApiResult.success("更新成功");
     }
-
-
+    @Transactional(rollbackFor=Exception.class)
+    public BaseApiResult updateUserRole(Integer userId, Integer roleId) {
+        roleUserDao.deleteRoleUser(userId);
+        roleUserDao.insertRoleUser(userId,roleId);
+        return BaseApiResult.success("更新成功");
+    }
     public int deleteUser(Integer userId){
         return userDao.deleteUser(userId);
     }

@@ -21,8 +21,8 @@ public enum ErrorCode {
     SQL_ERROR(1203,HttpStatus.INTERNAL_SERVER_ERROR,"数据库错误"),
     DELETE_FAILE(1024,HttpStatus.INTERNAL_SERVER_ERROR,"删除失败"),
     IO_EXCEPTION(1025,HttpStatus.INTERNAL_SERVER_ERROR,"IO错误"),
-    FILE_NOT_FOUND(1026,HttpStatus.INTERNAL_SERVER_ERROR,"未找到文件");
-
+    FILE_NOT_FOUND(1026,HttpStatus.INTERNAL_SERVER_ERROR,"未找到文件"),
+    USER_ERROR(1027, HttpStatus.NOT_FOUND, "未找到指定用户"),;
     private final int code;
 
     private final HttpStatus status;
