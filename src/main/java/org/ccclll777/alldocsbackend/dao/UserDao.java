@@ -22,12 +22,39 @@ public interface UserDao {
      */
     User selectUserByUserName(String userName);
 
+    /**
+     * 新增用户
+     * @param user
+     * @return
+     */
     int insertUser(User user);
+
+    /**
+     * 查询用户列表
+     * @param limit
+     * @param offset
+     * @return
+     */
     List<User> selectUserList(Integer limit, Integer offset);
 
+    /**
+     * 更新用户信息
+     * @param user
+     * @return
+     */
     int updateUser(User user);
 
+    /**
+     * 删除用户
+     * @param userId
+     * @return
+     */
     int deleteUser(Integer userId);
+
+    /**
+     * 用户数量
+     * @return
+     */
     int userCount();
 
 }

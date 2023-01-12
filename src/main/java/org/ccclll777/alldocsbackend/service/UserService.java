@@ -41,6 +41,11 @@ public class UserService {
     private  RoleUserDao roleUserDao;
     @Autowired
     private  BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    /**
+     * 保存角色时，需要保证操作的事物性
+     * @param userRegisterRequest
+     */
     @Transactional(rollbackFor = Exception.class)
     public void save(UserRegisterDTO userRegisterRequest) {
         ensureUserNameNotExist(userRegisterRequest.getUserName());
@@ -63,6 +68,11 @@ public class UserService {
         roleUserDao.insertRoleUser(newUser.getId(),userRole.getId());
 //        roleUserDao.insertRoleUser(newUser.getId(),managerRole.getId());
     }
+
+    /**
+     * 注册
+     * @param user
+     */
     @Transactional(rollbackFor = Exception.class)
     public void saveUser(User user) {
         ensureUserNameNotExist(user.getUserName());

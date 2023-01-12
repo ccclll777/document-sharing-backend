@@ -151,6 +151,13 @@ public class FileListService {
         return others;
     }
 
+    /**
+     * 查询某个分类下的所有文档
+     * @param categoryId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public List<Object> getFilesByCategoryId(int categoryId, int pageNum, int pageSize) {
         List<File> files = filesDao.selectFilesByCategoryId(categoryId,pageSize,0);
         List<Object> others = new ArrayList<>();

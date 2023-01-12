@@ -20,6 +20,11 @@ public class CategoryService {
     @Autowired
     private FilesDao filesDao;
 
+    /**
+     * 插入分类
+     * @param category
+     * @return
+     */
     public int insertCategory(Category category) {
         int count = categoryDao.haveCategory(category.getName());
         if(count > 0) {
@@ -27,9 +32,21 @@ public class CategoryService {
         }
         return categoryDao.insertCategory(category);
     }
+
+    /**
+     * 更新分类
+     * @param category
+     * @return
+     */
     public int updateCategory(Category category){
         return categoryDao.updateCategory(category);
     }
+
+    /**
+     * 删除分类
+     * @param categoryId
+     * @return
+     */
     public int deleteCategory(int categoryId) {
         int count = filesDao.fileCountByCategoryId(categoryId);
         if (count > 0) {
@@ -37,6 +54,12 @@ public class CategoryService {
         }
         return categoryDao.deleteCategory(categoryId);
     }
+
+    /**
+     * 批量删除分类列表
+     * @param categoryIds
+     * @return
+     */
     public int deleteCategoryList(String categoryIds) {
         String[] idxs = categoryIds.split(",");
         if(idxs.length == 0){
@@ -44,15 +67,29 @@ public class CategoryService {
         }
         for (String idx : idxs) {
             Integer id = Integer.parseInt(idx);
-            categoryDao.deleteCategory(id);
+            int count = filesDao.fileCountByCategoryId(id);
+            if (count <= 0) {
+                categoryDao.deleteCategory(id);
+            }
         }
         return 1;
     }
 
+    /**
+     * 选择分类裂帛奥
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public List<Category> selectCategoryList(int pageNum, int pageSize) {
         int offset = pageNum * pageSize;
         return categoryDao.selectCategoryList(pageSize,offset);
     }
+
+    /**
+     * 获取分类数量
+     * @return
+     */
     public int getCategoryCount() {
         return categoryDao.categoryCount();
     }
