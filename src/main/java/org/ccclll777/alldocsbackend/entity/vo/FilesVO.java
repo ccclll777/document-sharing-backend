@@ -21,5 +21,5 @@ public class FilesVO {
     private String thumbId;
     private String mongoFileId;
     private Date createTime;
-
+    private String description;
 }

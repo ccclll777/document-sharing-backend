@@ -2,6 +2,7 @@ package org.ccclll777.alldocsbackend.controller;
 
 import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -58,9 +59,23 @@ public class StatisticsController {
     @GetMapping(value = "/hot")
     public BaseApiResult hot(@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
                                   @RequestParam(value = "pageSize", defaultValue = "10") int pageSize)  {
-        List<Map<String, Object>> files = fileListService.selectFilesRecently(pageSize);
-        return BaseApiResult.success(files);
+        Map<String, Object> top1 = fileListService.getTop1File();
+        List<Object> others = fileListService.getFileByHits(pageNum,pageSize);
+        Map<String, Object> result = Maps.newHashMap();
+        result.put("top1", top1);
+        result.put("others", others);
+        return BaseApiResult.success(result);
     }
 
+    @ApiOperation(value = "根据分类获取文档")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    @GetMapping(value = "/filesByCategoryId")
+    public BaseApiResult getFilesByCategoryId(
+                             @RequestParam(value = "categoryId", defaultValue = "17") int categoryId,
+                             @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+                             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize)  {
 
+        List<Object> files = fileListService.getFilesByCategoryId(categoryId,pageNum,pageSize);
+        return BaseApiResult.success(files);
+    }
 }

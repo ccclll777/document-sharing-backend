@@ -67,6 +67,8 @@ public class TagController {
         int code = tagService.deleteTag(tagId);
         if(code > 0){
             return  BaseApiResult.success("删除标签成功");
+        } else if (code == -2)  {
+            return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除标签失败,还存在对应标签的文档");
         }
         return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除标签失败");
     }

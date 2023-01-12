@@ -52,7 +52,6 @@ public class FileListService {
     private FileTagDao fileTagDao;
     @Autowired
     private FileListService fileService;
-
     public List<Map<String, Object>> selectFilesRecently( int pageSize) {
         List<File> files = filesDao.selectFilesOrderByTime(pageSize,0);
         List<Map<String, Object>> result = Lists.newArrayList();
@@ -113,5 +112,58 @@ public class FileListService {
         }
         return result;
     }
+
+    /**
+     * 获取热度最高的文档
+     * @return
+     */
+    public Map<String, Object> getTop1File() {
+        List<File> files = filesDao.selectFilesOrderByHits(1,0);
+        Map<String, Object> top1 = Maps.newHashMap();
+        top1.put("name", files.get(0).getName());
+        top1.put("id", files.get(0).getId());
+        top1.put("mongoFileId", files.get(0).getMongoFileId());
+        top1.put("commentNum", 0);
+        top1.put("collectNum", 0);
+        top1.put("likeNum", 0);
+        return top1;
+    }
+
+    /**
+     * 根据点击量获取文件
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    public List<Object> getFileByHits(int pageNum, int pageSize) {
+        int offset = pageNum * pageSize;
+        //把top1去掉
+        List<File> files = filesDao.selectFilesOrderByHits(pageSize,offset+1);
+        List<Object> others = new ArrayList<>();
+        for (File file : files) {
+            Map<String, Object> fileInfo = Maps.newHashMap();
+            fileInfo.put("hit", file.getHits());
+            fileInfo.put("name", file.getName());
+            fileInfo.put("id", file.getId());
+            fileInfo.put("mongoFileId", file.getMongoFileId());
+            others.add(fileInfo);
+        }
+        return others;
+    }
+
+    public List<Object> getFilesByCategoryId(int categoryId, int pageNum, int pageSize) {
+        List<File> files = filesDao.selectFilesByCategoryId(categoryId,pageSize,0);
+        List<Object> others = new ArrayList<>();
+        for (File file : files) {
+            Map<String, Object> fileInfo = Maps.newHashMap();
+            fileInfo.put("name", file.getName());
+            fileInfo.put("id", file.getId());
+            fileInfo.put("mongoFileId", file.getMongoFileId());
+            fileInfo.put("thumbId", file.getThumbId());
+            others.add(fileInfo);
+        }
+        return others;
+    }
+
 
 }

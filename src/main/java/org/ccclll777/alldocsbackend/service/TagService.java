@@ -2,6 +2,7 @@ package org.ccclll777.alldocsbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ccclll777.alldocsbackend.dao.FileTagDao;
 import org.ccclll777.alldocsbackend.dao.TagDao;
 import org.ccclll777.alldocsbackend.entity.Category;
 import org.ccclll777.alldocsbackend.entity.Tag;
@@ -15,6 +16,8 @@ import java.util.List;
 public class TagService {
     @Autowired
     private TagDao tagDao;
+    @Autowired
+    private FileTagDao fileTagDao;
     public int insertTag(Tag tag) {
         int count = tagDao.haveTag(tag.getName());
         if(count > 0) {
@@ -26,6 +29,10 @@ public class TagService {
         return tagDao.updateTag(tag);
     }
     public int deleteTag(int tagId) {
+        int count = fileTagDao.fileCountByTagId(tagId);
+        if (count > 0) {
+            return -2;
+        }
         return tagDao.deleteTag(tagId);
     }
 

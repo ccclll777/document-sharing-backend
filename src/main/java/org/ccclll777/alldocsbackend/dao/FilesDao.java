@@ -131,4 +131,52 @@ public interface FilesDao {
      * @return
      */
     int updateHits(Integer fileId);
+
+    /**
+     * 根据点击量排序查询文档
+     * @param limit
+     * @param offset
+     * @return
+     */
+    List<File> selectFilesOrderByHits(Integer limit, Integer offset);
+
+    /**
+     * 根据分类选择文档
+     * @param categoryId
+     * @param limit
+     * @param offset
+     * @return
+     */
+    List<File> selectFilesByCategoryId(Integer categoryId,Integer limit, Integer offset);
+
+    /**
+     * 修改文档所属的分类
+     * @param categoryId
+     * @param fileId
+     * @return
+     */
+    int updateFileCategory(Integer categoryId, Integer fileId);
+
+    /**
+     * 更新文档名称
+     * @param name
+     * @param fileId
+     * @return
+     */
+    int updateFileName(String name, Integer fileId);
+
+    /**
+     * 更新文档描述
+     * @param description
+     * @param fileId
+     * @return
+     */
+    int updateFileDescription(String description,Integer fileId);
+
+    /**
+     * 查询某一分类下的文档数量
+     * @param categoryId
+     * @return
+     */
+    int fileCountByCategoryId(Integer categoryId);
 }

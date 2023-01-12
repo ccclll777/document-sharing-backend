@@ -3,6 +3,7 @@ package org.ccclll777.alldocsbackend.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ccclll777.alldocsbackend.dao.CategoryDao;
+import org.ccclll777.alldocsbackend.dao.FilesDao;
 import org.ccclll777.alldocsbackend.dao.TagDao;
 import org.ccclll777.alldocsbackend.entity.Category;
 import org.ccclll777.alldocsbackend.entity.User;
@@ -16,6 +17,8 @@ import java.util.List;
 public class CategoryService {
     @Autowired
     private CategoryDao categoryDao;
+    @Autowired
+    private FilesDao filesDao;
 
     public int insertCategory(Category category) {
         int count = categoryDao.haveCategory(category.getName());
@@ -28,6 +31,10 @@ public class CategoryService {
         return categoryDao.updateCategory(category);
     }
     public int deleteCategory(int categoryId) {
+        int count = filesDao.fileCountByCategoryId(categoryId);
+        if (count > 0) {
+            return -2;
+        }
         return categoryDao.deleteCategory(categoryId);
     }
     public int deleteCategoryList(String categoryIds) {

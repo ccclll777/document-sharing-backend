@@ -49,4 +49,8 @@ public class File {
      * 点击量
      */
     private Long hits;
+    /**
+     * 文档描述
+     */
+    private String description;
 }

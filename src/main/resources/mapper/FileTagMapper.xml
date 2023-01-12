@@ -24,6 +24,9 @@
         where tag_id = #{tagId,jdbcType=INTEGER}
     </select>
 
+    <select id="fileCountByTagId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(id) from file_tag  where tag_id = #{tagId,jdbcType=INTEGER}
+    </select>
     <delete id="deleteFileTag" parameterType="java.lang.Integer" >
         delete from file_tag where file_id = #{fileId,jdbcType=INTEGER}
     </delete>

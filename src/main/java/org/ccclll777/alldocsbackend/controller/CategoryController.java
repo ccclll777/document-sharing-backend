@@ -8,6 +8,8 @@ import org.ccclll777.alldocsbackend.entity.Category;
 import org.ccclll777.alldocsbackend.entity.User;
 import org.ccclll777.alldocsbackend.entity.dto.CategoryDTO;
 import org.ccclll777.alldocsbackend.enums.ErrorCode;
+import org.ccclll777.alldocsbackend.security.common.constants.SecurityConstants;
+import org.ccclll777.alldocsbackend.security.common.utils.JwtTokenUtils;
 import org.ccclll777.alldocsbackend.service.CategoryService;
 import org.ccclll777.alldocsbackend.utils.BaseApiResult;
 import org.ccclll777.alldocsbackend.utils.RegexConstant;
@@ -28,13 +30,16 @@ public class CategoryController {
     @ApiOperation(value = "新增单个分类")
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
     @PostMapping(value = "/insert")
-    public BaseApiResult insert(@RequestBody CategoryDTO categoryDTO) {
+    public BaseApiResult insert(@RequestBody CategoryDTO categoryDTO, @RequestHeader(SecurityConstants.TOKEN_HEADER) String token) {
         // 插入进来的参数必需经过清洗
         String name = categoryDTO.getName();
         if (!name.matches(RegexConstant.CH_ENG_WORD)) {
             return BaseApiResult.error(ErrorCode.PARAMS_CONTENT_ERROR.getCode(), ErrorCode.PARAMS_CONTENT_ERROR.getMessage());
         }
-        Category category = Category.builder().name(categoryDTO.getName()).description(categoryDTO.getDescription()).userId(categoryDTO.getUserId()).build();
+        //需要根据token找到userId
+        String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
+        String userId =   JwtTokenUtils.getId(tokenValue);
+        Category category = Category.builder().name(categoryDTO.getName()).description(categoryDTO.getDescription()).userId(Integer.parseInt(userId)).build();
         int code = categoryService.insertCategory(category);
         if(code > 0){
             return  BaseApiResult.success("插入分类成功");
@@ -60,7 +65,6 @@ public class CategoryController {
         }
         return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "更新分类失败");
     }
-
     @ApiOperation(value = "根据id移除某个分类")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @DeleteMapping(value = "/delete/{categoryId}")
@@ -68,6 +72,8 @@ public class CategoryController {
         int code = categoryService.deleteCategory(categoryId);
         if(code > 0){
             return  BaseApiResult.success("删除分类成功");
+        } else if (code == -2) {
+            BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除分类失败,还有属于此分类的文档");
         }
         return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "删除分类失败");
     }

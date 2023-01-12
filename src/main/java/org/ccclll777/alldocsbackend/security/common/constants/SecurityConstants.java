@@ -54,7 +54,8 @@ public final class SecurityConstants {
             "/auth/logout",
             "/user/sign-up",
             "/files/image/**",
-            "/files/view/**"
+            "/files/view/**",
+//            "/files/uploadWithForm/**"
     };
 
     private SecurityConstants() {

@@ -4,26 +4,19 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.IdUtil;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
-import com.mongodb.client.gridfs.model.GridFSDownloadOptions;
 import com.mongodb.client.gridfs.model.GridFSFile;
-import io.swagger.models.auth.In;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.utils.Lists;
 import org.ccclll777.alldocsbackend.dao.*;
 import org.ccclll777.alldocsbackend.entity.File;
 import org.ccclll777.alldocsbackend.entity.FileDocument;
 import org.ccclll777.alldocsbackend.entity.Tag;
+import org.ccclll777.alldocsbackend.entity.dto.UpdateFileDTO;
+import org.ccclll777.alldocsbackend.entity.dto.UploadDTO;
 import org.ccclll777.alldocsbackend.entity.vo.FilesVO;
 import org.ccclll777.alldocsbackend.entity.vo.SearchFilesVO;
 import org.ccclll777.alldocsbackend.enums.FileStateEnum;
 import org.ccclll777.alldocsbackend.task.exception.TaskRunException;
 import org.ccclll777.alldocsbackend.utils.ByteConverter;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.suggest.SuggestBuilder;
-import org.elasticsearch.search.suggest.SuggestBuilders;
-import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,15 +26,12 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.beans.Transient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -85,7 +75,7 @@ public class FileService {
      * @param file 文件
      * @return FileDocument
      */
-    public FileDocument saveFile(String md5, MultipartFile file, Integer userId) {
+    public FileDocument saveFile(String md5, MultipartFile file, Integer userId, UploadDTO uploadDTO) {
         //已存在该文件，则实现秒传
         FileDocument fileDocument = getByMd5(md5);
         if (fileDocument != null) {
@@ -101,7 +91,6 @@ public class FileService {
         fileDocument.setContentType(file.getContentType());
         fileDocument.setUploadDate(new Date());
         fileDocument.setMd5(md5);
-
         if (StringUtils.hasText(originFilename)) {
             String suffix = originFilename.substring(originFilename.lastIndexOf("."));
             fileDocument.setSuffix(suffix);
@@ -125,7 +114,13 @@ public class FileService {
             //TODO 异步保存数据标签 文档分类到数据库
             //fileService 自己注入自己 避免调用时事务失效。
             //这里传入的分类id是默认分类的分类id
-            fileService.saveWhenSaveDoc(fileDocument,gridfsId,17,userId);
+            if (uploadDTO != null) {
+                System.out.println("categoryId"+uploadDTO.getCategoryId());
+                System.out.println("description"+uploadDTO.getDescription());
+                fileService.saveWhenSaveDoc(fileDocument,gridfsId,uploadDTO.getCategoryId(),userId,uploadDTO.getDescription());
+            } else {
+                fileService.saveWhenSaveDoc(fileDocument,gridfsId,17,userId,"");
+            }
         }catch (RuntimeException rx) {
             //如果抛出了 RuntimeException 表示事务调用处理失败，需要删除存入mongo中的文件，保证无事发生
             log.info("saveFile 保存数据到Mysql发生RuntimeException 事务回滚 ,{}",rx.getMessage());
@@ -134,15 +129,15 @@ public class FileService {
         }
         return fileDocument;
     }
-
     /**
      * 需要保证这个方法的事务，同时执行
      * @param fileDocument
      * @param gridfsId
      * @param categoryId
      */
-    @Transactional(rollbackFor=Exception.class)
-    public void saveWhenSaveDoc(FileDocument fileDocument,String gridfsId,Integer categoryId,Integer userId) {
+
+
+    public void saveWhenSaveDoc(FileDocument fileDocument,String gridfsId,Integer categoryId,Integer userId,String description) {
         try {
             if(fileDocument == null ) {
                 return;
@@ -154,7 +149,7 @@ public class FileService {
                     .contentType(fileDocument.getContentType()).suffix(fileDocument.getSuffix())
                     .reviewing(rewiewing).fileState(fileDocument.getDocState().getCode()).categoryId(categoryId)
                     .errorMessage("").userId(userId).size(fileDocument.getSize())
-                    .MongoFileId(fileDocument.getId()).thumbId(fileDocument.getThumbId()).md5(fileDocument.getMd5())
+                    .MongoFileId(fileDocument.getId()).thumbId(fileDocument.getThumbId()).md5(fileDocument.getMd5()).description(description)
                     .build();
             filesDao.insertFile(file);
             int fileId = filesDao.selectFileByGridfsId(file.getGridfsId()).getId();
@@ -551,10 +546,24 @@ public class FileService {
                 .categoryName(categoryName).tagNames(tagNames)
                 .userName(userName).fileState(fileState)
                 .errorMessage(file.getErrorMessage()).reviewState(reviewState).size(ByteConverter.getSize(file.getSize()))
-                .thumbId(file.getThumbId()).createTime(file.getCreateTime())
+                .thumbId(file.getThumbId()).createTime(file.getCreateTime()).description(file.getDescription())
                 .build();
         return filesVO;
     }
+
+    /**
+     * 更新文档信息
+     * @param updateFileDTO
+     * @return
+     */
+    @Transactional(rollbackFor=Exception.class)
+    public int updateFile(UpdateFileDTO updateFileDTO) {
+        filesDao.updateFileCategory(updateFileDTO.getCategoryId(), updateFileDTO.getFileId());
+        filesDao.updateFileName(updateFileDTO.getName(), updateFileDTO.getFileId());
+        filesDao.updateFileDescription(updateFileDTO.getDescription(),updateFileDTO.getFileId());
+        return 1;
+    }
+
 
 
 }

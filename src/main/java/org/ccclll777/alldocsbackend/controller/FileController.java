@@ -4,13 +4,9 @@ import cn.hutool.crypto.SecureUtil;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ccclll777.alldocsbackend.entity.File;
-import org.ccclll777.alldocsbackend.entity.FileDocument;
-import org.ccclll777.alldocsbackend.entity.Tag;
-import org.ccclll777.alldocsbackend.entity.User;
-import org.ccclll777.alldocsbackend.entity.dto.FileDTO;
+import org.ccclll777.alldocsbackend.entity.*;
+import org.ccclll777.alldocsbackend.entity.dto.UpdateFileDTO;
 import org.ccclll777.alldocsbackend.entity.dto.UploadDTO;
 import org.ccclll777.alldocsbackend.entity.vo.FilesVO;
 import org.ccclll777.alldocsbackend.entity.vo.SearchFilesVO;
@@ -32,14 +28,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -78,14 +70,13 @@ public class FileController {
                 //需要根据token找到userId
                 String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
                 String userId =   JwtTokenUtils.getId(tokenValue);
-                FileDocument fileDocument = fileService.saveFile(fileMd5, file,Integer.parseInt(userId));
+                FileDocument fileDocument = fileService.saveFile(fileMd5, file,Integer.parseInt(userId),null);
                 if(fileDocument != null) {
                     switch (suffix) {
                         case "pdf":
                         case "docx":
                         case "pptx":
                         case "xlsx":
-                            //开启线程 执行索引建立任务
                             taskExecuteService.execute(fileDocument);
                             break;
                         default:
@@ -239,4 +230,57 @@ public class FileController {
     }
 
 
+    @ApiOperation("上传文件,携带表单")
+    @PostMapping("/uploadWithForm")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_USER')")
+    public BaseApiResult uploadWithForm(
+            UploadDTO uploadDTO,
+            @RequestParam(value = "file") MultipartFile file,
+            @RequestHeader(SecurityConstants.TOKEN_HEADER) String token) throws IOException {
+        List<String> availableSuffixList = Lists.newArrayList("pdf", "png", "docx", "pptx", "xlsx");
+        if (file != null && !file.isEmpty()) {
+            String originFileName = file.getOriginalFilename();
+            if (!StringUtils.hasText(originFileName)) {
+                return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(),"格式不支持");
+            }
+            //获取文件后缀名
+            String suffix = originFileName.substring(originFileName.lastIndexOf(".") + 1);
+            if (!availableSuffixList.contains(suffix)) {
+                return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(),"格式不支持");
+            }
+            String fileMd5 = SecureUtil.md5(file.getInputStream());
+            //需要根据token找到userId
+            String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
+            String userId =   JwtTokenUtils.getId(tokenValue);
+            FileDocument fileDocument = fileService.saveFile(fileMd5, file,Integer.parseInt(userId),uploadDTO);
+            if(fileDocument != null) {
+                switch (suffix) {
+                    case "pdf":
+                    case "docx":
+                    case "pptx":
+                    case "xlsx":
+                        taskExecuteService.execute(fileDocument);
+                        break;
+                    default:
+                        break;
+                }
+                return BaseApiResult.success("上传成功");
+            } else {
+                return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(), "发生错误，上传失败");
+            }
+        } else {
+            return BaseApiResult.error(ErrorCode.UPLOAD_FAILED.getCode(), "请传入文件");
+        }
+    }
+    @ApiOperation(value = "更新文档所属的分类和名称")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
+    @PostMapping(value = "/update")
+    public BaseApiResult update(@RequestBody UpdateFileDTO updateFileDTO) {
+
+        int code = fileService.updateFile(updateFileDTO);
+        if(code > 0){
+            return  BaseApiResult.success("更新文档成功");
+        }
+        return  BaseApiResult.error(ErrorCode.PARAMS_PROCESS_FAILD.getCode(), "更新文档失败");
+    }
 }
