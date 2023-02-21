@@ -13,9 +13,7 @@ public class TaskExecutorFactory {
     private TaskExecutorFactory() {
 
     }
-
     static Map<FileType, TaskExecutor> taskExecutorMap = new EnumMap<>(FileType.class);
-
     public static TaskExecutor getTaskExecutor(FileType fileType) {
         TaskExecutor taskExecutor = taskExecutorMap.get(fileType);
         if (null != taskExecutor) {
@@ -23,7 +21,6 @@ public class TaskExecutorFactory {
         }
         return createTaskExecutor(fileType);
     }
-
     /**
      * 创建任务执行器
      * @param fileType 文档类型
@@ -31,7 +28,6 @@ public class TaskExecutorFactory {
      */
     private static TaskExecutor createTaskExecutor(FileType fileType) {
         TaskExecutor taskExecutor = null;
-        //目前只有pdf到word的
         switch (fileType) {
             case PDF:
                 taskExecutor = new PdfWordTaskExecutor();

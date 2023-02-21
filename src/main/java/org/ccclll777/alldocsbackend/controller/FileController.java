@@ -109,10 +109,10 @@ public class FileController {
         //需要根据token找到userId
         String tokenValue = token.replace(SecurityConstants.TOKEN_PREFIX, "");
         String userId =   JwtTokenUtils.getId(tokenValue);
+
         List<FilesVO> files = fileService.selectFilesByUserId(pageNum-1, pageSize,Integer.parseInt(userId));
         return BaseApiResult.success(files);
     }
-
     @ApiOperation(value = "查询文档数量")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @GetMapping(value = "/count")
@@ -131,7 +131,6 @@ public class FileController {
         int count = fileService.fileCountByUserId(Integer.parseInt(userId));
         return BaseApiResult.success(count);
     }
-
     @ApiOperation(value = "根据id彻底删除文档")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @DeleteMapping(value = "/deleteCompletely/{fileId}")

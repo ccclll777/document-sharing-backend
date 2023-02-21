@@ -18,11 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/**
- * @Author Jarrett Luo
- * @Date 2022/10/20 17:59
- * @Version 1.0
- */
 @Slf4j
 public class MainTask implements RunnableTask {
 
@@ -32,13 +27,6 @@ public class MainTask implements RunnableTask {
      * 任务要处理的相关数据
      */
     private TaskData taskData = new TaskData();
-
-    /**
-     * @Author luojiarui
-     * @Description // 初始化任务，指定一个
-     * @Date 15:43 2022/11/13
-     * @Param [fileDocument]
-     **/
     public MainTask(FileDocument fileDocument) {
         taskData.setFileDocument(fileDocument);
         taskData.setThumbFilePath("");

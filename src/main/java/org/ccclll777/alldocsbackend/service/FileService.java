@@ -115,8 +115,6 @@ public class FileService {
             //fileService 自己注入自己 避免调用时事务失效。
             //这里传入的分类id是默认分类的分类id
             if (uploadDTO != null) {
-                System.out.println("categoryId"+uploadDTO.getCategoryId());
-                System.out.println("description"+uploadDTO.getDescription());
                 fileService.saveWhenSaveDoc(fileDocument,gridfsId,uploadDTO.getCategoryId(),userId,uploadDTO.getDescription());
             } else {
                 fileService.saveWhenSaveDoc(fileDocument,gridfsId,17,userId,"");

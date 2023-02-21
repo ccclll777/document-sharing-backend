@@ -1,0 +1,41 @@
+version: '2.1'
+services:
+  mongodb:
+    image: mongo
+    container_name: all-docs-mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/mongo/configdb:/data/configdb
+      - ./data/mongo/db:/data/db
+      - ./data/mongodb/log:/var/log/mongodb  # 挂载日志目录
+#    command: mongod --auth
+#    初始化管理员用户名和密码
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME:
+#      MONGO_INITDB_ROOT_PASSWORD:
+#      MONGO_INITDB_DATABASE: all-docs
+    tty: true
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: all-docs-redis
+    command: redis-server /etc/redis/redis.conf
+    ports:
+      - 16379:6379
+    volumes:
+      - ./data/redis:/data
+      - ./data/redis/redis.conf:/etc/redis/redis.conf
+  mysql:
+    image: mysql
+    container_name: all-docs-mysql
+    restart: always
+    ports:
+      - 13306:3306
+    volumes:
+      - ./data/mysql/conf/mysql:/etc/mysql
+      - ./data/mysql/data:/var/lib/mysql
+    #初始化管理员用户名和密码
+    environment:
+      MYSQL_ROOT_PASSWORD: root

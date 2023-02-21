@@ -38,10 +38,8 @@ public class MsExcelParse {
         ParseContext parseContext = new ParseContext();
 
         //OOXml parser 使用解析器解析excel类型的文档
-
         OOXMLParser msOfficeParser = new OOXMLParser();
         msOfficeParser.parse(inputStream, handler, metadata, parseContext);
-
         return handler.toString();
 
     }

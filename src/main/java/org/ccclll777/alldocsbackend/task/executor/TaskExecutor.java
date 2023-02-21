@@ -21,20 +21,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-/**
- * @Author Jarrett Luo
- * @Date 2022/10/20 18:23
- * @Version 1.0
- */
+
 @Slf4j
 public abstract class TaskExecutor {
 
     public void execute(TaskData taskData) throws TaskRunException {
-
         // 第一步下载文件，转换为byte数组
         FileDocument fileDocument = taskData.getFileDocument();
         InputStream docInputStream = new ByteArrayInputStream(downFileBytes(fileDocument.getGridfsId()));
-
         // 将文本索引到es中
         try {
             uploadFileToEs(docInputStream, fileDocument, taskData);
@@ -49,7 +43,6 @@ public abstract class TaskExecutor {
             throw new TaskRunException("建立缩略图时出错", e);
         }
     }
-
     /**
      * 从gridFS 系统中下载文件为字节流 根据gridFsId获取对应的文件
      **/
@@ -78,7 +71,6 @@ public abstract class TaskExecutor {
             fileObj.setId(fileDocument.getMd5());
             fileObj.setName(fileDocument.getName());
             fileObj.setType(fileDocument.getContentType());
-
             //读取文件
             fileObj.readFile(textFilePath);
             List<String> list = WordSegmentation.cutWord(fileObj.getName());
@@ -114,11 +106,10 @@ public abstract class TaskExecutor {
     }
 
     /**
-     * @Author luojiarui
-     * @Description 设置描述内容
-     * @Date 18:54 2022/11/13
-     * @Param [textFilePath, fileDocument]
-     **/
+     * 设置描述内容
+     * @param textFilePath
+     * @param fileDocument
+     */
     private void handleDescription(String textFilePath, FileDocument fileDocument) {
         try{
             List<String> stringList = FileUtils.readLines(new File(textFilePath), StandardCharsets.UTF_8);

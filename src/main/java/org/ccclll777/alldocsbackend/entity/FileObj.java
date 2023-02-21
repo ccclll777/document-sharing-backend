@@ -14,13 +14,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-/**
- * @ClassName FileObj
- * @Description FileObj
- * @Author luojiarui
- * @Date 2022/7/3 10:47 下午
- * @Version 1.0
- **/
 @Data
 @Document(indexName = "docwrite")
 public class FileObj {
